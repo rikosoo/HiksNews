@@ -6,7 +6,7 @@ This document summarizes and reflects on research about **risk communication and
 
 The analysis is based on comparative studies of multiple European Union member states and highlights how **different governance models shape communication strategies, public expectations, and individual responsibility**.
 
-A key reference in this field is the work of **:contentReference[oaicite:0]{index=0}**, whose research contributes to understanding how preparedness, resilience, and risk narratives are constructed at the societal level.
+
 
 ---
 
