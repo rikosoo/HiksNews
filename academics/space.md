@@ -56,7 +56,7 @@ Contributions, ideas, and discussions are welcome!
 Feel free to open issues or submit pull requests.
 
 ## 📚 References
-This project is based on research and analysis of satellite cybersecurity, orbital mechanics, and real-world incidents. :contentReference[oaicite:0]{index=0}
+This project is based on research and analysis of satellite cybersecurity, orbital mechanics, and real-world incidents. :contentReference[oaicite:0]
 
 ---
 
