@@ -1,6 +1,7 @@
 #include "tc.h"
 #include "uart.h"
 #include "subsystems.h"
+#include "privileged.h"
 
 /* ------------------------------------------------------------------------
  * Telecommand dispatch table. Legitimate control flow only ever reaches the
@@ -34,6 +35,28 @@ static void h_pld_capture(const uint8_t *arg, uint32_t arg_len)
     payload_capture();
 }
 
+static uint32_t rd32(const uint8_t *p)
+{
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
+           ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+/* Legitimate housekeeping telecommand: set a mission parameter.
+ * The bounds check that should guard the index is missing (vulnerability #2). */
+static void h_param_set(const uint8_t *arg, uint32_t arg_len)
+{
+    if (arg_len < 5U) { return; }
+    param_set((uint32_t)arg[0], rd32(&arg[1]));
+}
+
+/* Legitimate privileged telecommand. It calls the gated entry point, so the
+ * authentication check runs normally - and passes if the flag was corrupted. */
+static void h_priv_write(const uint8_t *arg, uint32_t arg_len)
+{
+    if (arg_len < 8U) { return; }
+    priv_raw_write(rd32(&arg[0]), rd32(&arg[4]));
+}
+
 static void h_unknown(const uint8_t *arg, uint32_t arg_len)
 {
     (void)arg; (void)arg_len;
@@ -47,6 +70,8 @@ static tc_handler_t lookup_handler(uint8_t apid)
         case APID_TM_BEACON:  return h_tm_beacon;
         case APID_EPS_REPORT: return h_eps_report;
         case APID_PLD_CAPT:   return h_pld_capture;
+        case APID_PARAM_SET:  return h_param_set;
+        case APID_PRIV_WRITE: return h_priv_write;
         default:              return h_unknown;
     }
 }

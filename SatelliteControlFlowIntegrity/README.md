@@ -9,6 +9,10 @@ Este diretório reúne o artigo, o modelo de ameaças e o protótipo de um
 satélites baseados em **ARM Cortex-M + FreeRTOS**, usando **trace de hardware**
 (ETM / MTB / Micro Trace Buffer) como fonte de evidência.
 
+**O paper completo está em [`Portuguese/artigo.md`](Portuguese/artigo.md) e
+[`English/article.md`](English/article.md).** Este README é o resumo executivo;
+os capítulos de apoio ficam em `docs/`.
+
 ---
 
 ## 📌 Motivação
@@ -135,23 +139,41 @@ desvio de fluxo, não o bug de entrada.
 | ATK-4 | Malicious task scheduling | hook de debug esquecido na imagem | task rogue acima do ADCS — apontamento perdido |
 | ATK-5 | Unauthorized privileged function | entra no corpo pulando a checagem de auth | escrita privilegiada sem autenticação |
 
+E um sexto cenário, **S5**, que não é um ataque de fluxo de controle e por isso
+não entra na conta de detecção: ver "A fronteira" abaixo.
+
 ## 📊 Resultados medidos
 
 | Métrica | Valor |
 |---|---|
 | **Attack detection** | **5/5 — 100%** |
 | **False positives** | **0** (1,4 M de blocos em S0, S1 e S4) |
-| **Detection latency** | **0,001 – 0,055 ms** (26 – 1379 instruções @ 25 MHz) |
+| **Detection latency** | **0,001 – 0,052 ms** (26 – 1303 instruções @ 25 MHz) |
 | **CPU overhead (bordo)** | **0%** |
 | **Flash overhead (bordo)** | **0 KB** |
 | **Memory overhead (bordo)** | **0 KB** |
-| Modelo de CFG (monitor) | 929 KB |
-| Throughput do monitor | ~34 MB de trace/s |
+| Modelo de CFG (monitor) | 940 KB |
+| Throughput do monitor | ~31 MB de trace/s |
+| **S5 — ataque só de dados** | **comprometido, 0 violações — fora do alcance** |
 
 O overhead de bordo é zero **por construção**: o firmware não é instrumentado, o
 monitor consome o trace que o hardware já produz. O custo migra para a banda do
 canal de trace — que é a limitação prática mais séria e está discutida em
 `docs/05-evaluation.md`. Tabela completa em `docs/06-results.md`.
+
+### A fronteira: o cenário S5
+
+O S5 foi construído para **falhar**, e falha. Usando uma segunda vulnerabilidade
+(escrita fora de limites numa tabela de parâmetros), dois telecomandos
+perfeitamente bem formados forjam o campo `authenticated` e executam um comando
+privilegiado que deveria ter sido rejeitado. Nenhuma aresta ilegal é executada
+porque **todas as arestas são legais**: o monitor reporta zero violações, o
+satélite segue transmitindo telemetria normalmente, e a missão está
+comprometida.
+
+Um detector de fluxo de controle não pode ver um ataque que não desvia o fluxo
+de controle. Reportar isso como resultado, em vez de omitir, é o que separa uma
+avaliação de uma demonstração.
 
 ## ▶️ Como reproduzir
 
@@ -162,6 +184,7 @@ make -C firmware                   # arm-none-eabi-gcc
 
 python3 eval/run_scenario.py S0    # voo nominal
 python3 eval/run_scenario.py ATK-1 # ataque: veja a missão ser perdida
+python3 eval/run_scenario.py S5    # ataque só de dados: nenhum alerta
 python3 eval/run_matrix.py --out out/results.md   # matriz completa + métricas
 ```
 
@@ -224,10 +247,12 @@ SatelliteControlFlowIntegrity/
 - [x] Primeira rodada de avaliação (detecção, FP, latência, overhead)
 - [ ] Modelo de ameaças formalizado (docs/01)
 - [ ] Revisão de literatura consolidada (docs/02)
-- [ ] Cenário S5 (ataque só de dados) implementado como limite declarado
+- [x] Cenário S5 (ataque só de dados) implementado e medido
 - [ ] Repetições múltiplas por cenário, com distribuição de latência
 - [ ] Porte para hardware real com ETM/MTB e medição de energia
-- [ ] Redação final PT-BR + EN
+- [x] Paper completo redigido, PT-BR + EN
+- [ ] Referências fechadas com citação completa
+- [ ] Revisão final para submissão
 
 ## ⚖️ Escopo ético
 

@@ -10,11 +10,12 @@ Gerado por `eval/run_matrix.py` | firmware: `flight.elf` | CPU: Cortex-M3 @ 25 M
 | S0 | Nominal telecommands | não | 0 | n/a | — | — |
 | S1 | Malformed telecommands (rejected) | não | 0 | n/a | — | — |
 | S4 | Sustained nominal load | não | 0 | n/a | — | — |
-| ATK-1 | Buffer overflow | sim | 1 | SIM | 1301 | 0.0520 |
+| ATK-1 | Buffer overflow | sim | 1 | SIM | 1230 | 0.0492 |
 | ATK-2 | Function pointer corruption | sim | 1 | SIM | 26 | 0.0010 |
-| ATK-3 | ROP / control-flow hijacking | sim | 2 | SIM | 1379 | 0.0552 |
-| ATK-4 | Malicious task scheduling | sim | 1 | SIM | 1303 | 0.0521 |
-| ATK-5 | Unauthorized privileged function | sim | 2 | SIM | 1303 | 0.0521 |
+| ATK-3 | ROP / control-flow hijacking | sim | 2 | SIM | 1303 | 0.0521 |
+| ATK-4 | Malicious task scheduling | sim | 1 | SIM | 1230 | 0.0492 |
+| ATK-5 | Unauthorized privileged function | sim | 2 | SIM | 1230 | 0.0492 |
+| S5 | Data-only attack (no CF deviation) | sim | 0 | NÃO | — | — |
 
 ## Métricas agregadas / Summary metrics
 
@@ -22,14 +23,15 @@ Gerado por `eval/run_matrix.py` | firmware: `flight.elf` | CPU: Cortex-M3 @ 25 M
 |---|---|
 | Attack detection | 5/5 (100%) |
 | False positives (S0, S1, S4) | 0 |
-| Detection latency | 26–1379 instr (0.0010–0.0552 ms @ 25 MHz) |
+| S5 — Data-only attack (no CF deviation) | comprometido=sim, violações=0 → **fora do alcance da técnica** |
+| Detection latency | 26–1303 instr (0.0010–0.0521 ms @ 25 MHz) |
 | CPU overhead (on board) | 0% — o firmware não é instrumentado |
 | Flash overhead (on board) | 0 KB — nenhum código adicionado à imagem |
 | Memory overhead (on board) | 0 KB — nenhuma estrutura em RAM de voo |
-| Modelo de CFG (lado do monitor) | 928.9 KB |
-| Extração do modelo (build time) | 0.2 s |
-| Volume de trace analisado | 2383 MB |
-| Tempo de análise | 69 s |
+| Modelo de CFG (lado do monitor) | 939.7 KB |
+| Extração do modelo (build time) | 0.3 s |
+| Volume de trace analisado | 2588 MB |
+| Tempo de análise | 83 s |
 
 ## Leitura dos números
 

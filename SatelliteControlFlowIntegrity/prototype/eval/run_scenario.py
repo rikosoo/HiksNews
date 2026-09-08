@@ -32,7 +32,7 @@ COMPROMISE_MARKERS = [
     "EPS KILL SWITCH ENGAGED",
     "PAYLOAD MEMORY WIPED",
     "ROGUE TASK SCHEDULED",
-    "PRIVILEGED FUNCTION EXECUTED WITHOUT AUTH",
+    "PRIVILEGED RAW WRITE EXECUTED",
 ]
 
 
@@ -80,6 +80,8 @@ def build_scenario(name: str, sym: Symbols) -> list[bytes]:
         return nominal_traffic() + [frame(APID_ADCS_MODE, atk.atk4_task_scheduling(sym))]
     if name == "ATK-5":
         return nominal_traffic() + [frame(APID_ADCS_MODE, atk.atk5_privileged_call(sym))]
+    if name == "S5":
+        return nominal_traffic() + [frame(apid, p) for apid, p in atk.s5_data_only()]
     raise SystemExit(f"unknown scenario: {name}")
 
 

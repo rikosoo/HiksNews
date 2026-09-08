@@ -82,9 +82,32 @@ Notas sobre a escolha dos alvos:
 | S1 | Telecomandos malformados, rejeitados pelo parser | Nenhum alerta |
 | S4 | Carga sustentada (100 telecomandos) | Nenhum alerta |
 | ATK-1..5 | Os cinco ataques acima | Detecção |
-| S5 | Corrupção de dados sem desvio de fluxo | **Não detectado** — limitação declarada |
+| S5 | Ataque só de dados, sem desvio de fluxo | **Não detectado** — fronteira da técnica |
 
-S5 é deliberado: delimita honestamente o que a técnica não cobre.
+## S5 — o cenário construído para falhar
+
+O S5 usa uma **segunda vulnerabilidade controlada**, em `param_set()`
+(`firmware/src/privileged.c`): o índice vindo do telecomando não é validado
+contra o tamanho da tabela de parâmetros. O bloco de configuração é
+
+```c
+struct flight_state {
+    uint32_t params[8];
+    uint32_t authenticated;   /* adjacente na memória */
+};
+```
+
+de modo que `params[8]` **é** `authenticated`. O ataque são dois telecomandos
+perfeitamente bem formados:
+
+```
+1. APID 0x50  param_set(index=8, value=1)   -> forja a autenticação
+2. APID 0x60  priv_write(addr, value)       -> passa na checagem de auth
+```
+
+Nenhuma aresta ilegal é executada, porque todas as arestas são legais. O
+detector não vê nada; a missão está comprometida. É a fronteira estrutural da
+técnica, medida em vez de suposta.
 
 ## Reprodutibilidade
 

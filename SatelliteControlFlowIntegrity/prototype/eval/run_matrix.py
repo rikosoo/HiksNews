@@ -31,6 +31,7 @@ SCENARIOS = [
     ("ATK-3", "ROP / control-flow hijacking",      True),
     ("ATK-4", "Malicious task scheduling",         True),
     ("ATK-5", "Unauthorized privileged function",  True),
+    ("S5",    "Data-only attack (no CF deviation)",  None),
 ]
 
 
@@ -62,6 +63,7 @@ def main() -> int:
 
     rows = []
     for name, desc, is_attack in SCENARIOS:
+        boundary = is_attack is None
         print(f"\n== {name}: {desc} ==")
         trace = work / f"{name}.trace"
         res = work / f"{name}.json"
@@ -83,13 +85,14 @@ def main() -> int:
         if data.get("violations"):
             lat = data["violations"][0].get("lat_instr")
         rows.append({
-            "scenario": name, "desc": desc, "attack": is_attack,
+            "scenario": name, "desc": desc, "attack": bool(is_attack),
+            "boundary": boundary,
             "compromised": compromised, "violations": nv,
-            "detected": is_attack and nv > 0,
+            "detected": bool(is_attack) and nv > 0,
             # Extra violations inside an attack scenario are the further
             # stages of the same hijack (a ROP chain trips more than one
             # edge); false positives are only meaningful on benign runs.
-            "false_positives": nv if not is_attack else 0,
+            "false_positives": 0 if (is_attack or boundary) else nv,
             "blocks": data.get("blocks", 0),
             "instructions": data.get("instructions", 0),
             "lat_instr": lat,
@@ -101,7 +104,8 @@ def main() -> int:
 
     hz = 25e6
     attacks = [r for r in rows if r["attack"]]
-    benign = [r for r in rows if not r["attack"]]
+    benign = [r for r in rows if not r["attack"] and not r["boundary"]]
+    boundary = [r for r in rows if r["boundary"]]
     det = sum(1 for r in attacks if r["detected"])
     fp = sum(r["false_positives"] for r in benign)
 
@@ -119,7 +123,7 @@ def main() -> int:
         lines.append(
             f"| {r['scenario']} | {r['desc']} | "
             f"{'sim' if r['compromised'] else 'não'} | {r['violations']} | "
-            f"{'SIM' if r['detected'] else ('—' if r['attack'] else 'n/a')} | "
+            f"{'SIM' if r['detected'] else ('NÃO' if r['boundary'] else ('—' if r['attack'] else 'n/a'))} | "
             f"{r['lat_instr'] or '—'} | {lat_ms} |")
 
     lines.append("\n## Métricas agregadas / Summary metrics\n")
@@ -128,6 +132,10 @@ def main() -> int:
     lines.append(f"| Attack detection | {det}/{len(attacks)} "
                  f"({100.0 * det / len(attacks):.0f}%) |")
     lines.append(f"| False positives (S0, S1, S4) | {fp} |")
+    for b in boundary:
+        lines.append(f"| {b['scenario']} — {b['desc']} | "
+                     f"comprometido={'sim' if b['compromised'] else 'não'}, "
+                     f"violações={b['violations']} → **fora do alcance da técnica** |")
     lat_all = [r["lat_instr"] for r in attacks if r["lat_instr"]]
     if lat_all:
         lo, hi = min(lat_all), max(lat_all)

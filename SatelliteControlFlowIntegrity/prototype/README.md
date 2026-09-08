@@ -29,6 +29,7 @@ make -C firmware run           # boot interativo no terminal
 
 python3 eval/run_scenario.py S0        # voo nominal
 python3 eval/run_scenario.py ATK-3     # ROP chain
+python3 eval/run_scenario.py S5        # ataque só de dados (nenhum alerta)
 python3 eval/run_matrix.py --out out/results.md   # matriz completa
 ```
 
@@ -58,11 +59,17 @@ para servir de alvo mensurável:
 | `debug_spawn_rogue_task()` | cria task acima da prioridade do ADCS |
 | `priv_raw_write_body()` | escrita privilegiada sem autenticação |
 
-## A vulnerabilidade
+## As vulnerabilidades
 
-Uma só, em `firmware/src/tc.c`, marcada no código como
-`CONTROLLED VULNERABILITY`: o campo `LEN` do telecomando é usado sem validação
-como comprimento de cópia para `ctx.buf[64]` na pilha.
+Duas, ambas marcadas no código como `CONTROLLED VULNERABILITY`:
+
+1. **`firmware/src/tc.c`** — o campo `LEN` do telecomando é usado sem validação
+   como comprimento de cópia para `ctx.buf[64]` na pilha. É a porta dos cinco
+   ataques de fluxo de controle (ATK-1..5).
+2. **`firmware/src/privileged.c`** — o índice de `param_set()` não é validado
+   contra o tamanho da tabela, e `g_state.params[8]` **é**
+   `g_state.authenticated`. Existe só para o S5: permite comprometer a missão
+   sem desviar o fluxo de controle, que é o caso que o monitor não vê.
 
 O firmware é compilado com `-O0 -fno-stack-protector` de propósito: o layout de
 pilha precisa ser estável e a falha precisa continuar alcançável para que as

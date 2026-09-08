@@ -2,9 +2,22 @@
 #define PRIVILEGED_H
 #include <stdint.h>
 
-/* Authentication state for privileged telecommands. Set only by a successful
- * key exchange, which the prototype never performs: it is always 0. */
-extern volatile uint32_t g_tc_authenticated;
+/* Mission configuration block.
+ *
+ * The authentication flag lives immediately after the parameter table - the
+ * kind of layout that shows up in real flight software, where a configuration
+ * struct grows a security field over time. It is exactly what makes the
+ * data-only attack (S5) possible. */
+struct flight_state {
+    uint32_t params[8];
+    uint32_t authenticated;
+};
+
+extern volatile struct flight_state g_state;
+
+/* Writes a mission parameter. CONTROLLED VULNERABILITY #2: the index is not
+ * bounds-checked, so index 8 lands on g_state.authenticated. */
+void param_set(uint32_t index, uint32_t value);
 
 /* Gated entry point: checks authentication, then calls the body. */
 void priv_raw_write(uint32_t addr, uint32_t value);

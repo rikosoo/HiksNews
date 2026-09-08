@@ -9,14 +9,15 @@ A tabela bruta gerada pelo harness fica em `06-results.md`
 | Métrica | Valor medido | Como foi obtida |
 |---|---|---|
 | **Attack detection** | **5/5 (100%)** | ATK-1..5, uma execução completa cada |
+| **S5 — ataque só de dados** | **comprometido, 0 violações** | fora do alcance da técnica, por construção |
 | **False positives** | **0** | S0, S1 e S4 — 1,4 M de blocos executados sem alerta |
-| **Detection latency** | **26 – 1379 instruções (0,001 – 0,055 ms @ 25 MHz)** | da escrita que corrompe a pilha até a primeira aresta ilegal |
+| **Detection latency** | **26 – 1303 instruções (0,001 – 0,052 ms @ 25 MHz)** | da escrita que corrompe a pilha até a primeira aresta ilegal |
 | **CPU overhead (bordo)** | **0%** | o firmware não é instrumentado |
 | **Flash overhead (bordo)** | **0 KB** | nenhum código adicionado à imagem |
 | **Memory overhead (bordo)** | **0 KB** | nenhuma estrutura em RAM de voo |
-| Modelo de CFG (lado do monitor) | 929 KB | JSON não comprimido, 9.716 instruções |
+| Modelo de CFG (lado do monitor) | 940 KB | JSON não comprimido, 9.716 instruções |
 | Extração do modelo (build time) | 0,2 s | uma vez por build |
-| Throughput do monitor | ~34 MB de trace/s | 2,4 GB analisados em 69 s |
+| Throughput do monitor | ~31 MB de trace/s | 2,6 GB analisados em 83 s |
 
 ## Por cenário
 
@@ -25,11 +26,12 @@ A tabela bruta gerada pelo harness fica em `06-results.md`
 | S0 — telecomandos nominais | não | 0 | n/a | — | — |
 | S1 — malformados, rejeitados | não | 0 | n/a | — | — |
 | S4 — carga sustentada | não | 0 | n/a | — | — |
-| ATK-1 — buffer overflow | sim | 1 | **SIM** | 1301 | 0,0520 |
+| ATK-1 — buffer overflow | sim | 1 | **SIM** | 1230 | 0,0492 |
 | ATK-2 — function pointer | sim | 1 | **SIM** | 26 | 0,0010 |
-| ATK-3 — ROP | sim | 2 | **SIM** | 1379 | 0,0552 |
-| ATK-4 — task scheduling | sim | 1 | **SIM** | 1303 | 0,0521 |
-| ATK-5 — função privilegiada | sim | 2 | **SIM** | 1303 | 0,0521 |
+| ATK-3 — ROP | sim | 2 | **SIM** | 1303 | 0,0521 |
+| ATK-4 — task scheduling | sim | 1 | **SIM** | 1230 | 0,0492 |
+| ATK-5 — função privilegiada | sim | 2 | **SIM** | 1230 | 0,0492 |
+| **S5 — ataque só de dados** | **sim** | **0** | **NÃO** | — | — |
 
 ATK-3 e ATK-5 produzem duas violações porque o desvio tem dois estágios (o
 gadget e o alvo final; a entrada no corpo privilegiado e o seu retorno). São
@@ -52,7 +54,7 @@ cerca de 180× menor que o período do laço de ADCS (10 ms). Existe folga para
 disparar uma resposta antes do próximo ciclo de controle de atitude — que é o
 que separa "detectar" de "conter".
 
-**ATK-2 é detectado 50× mais rápido** que os demais (26 instruções contra ~1300):
+**ATK-2 é detectado 47× mais rápido** que os demais (26 instruções contra ~1230):
 a corrupção do ponteiro de função é usada imediatamente na chamada indireta,
 enquanto os ataques de retorno só disparam quando a função retorna, depois do
 handler legítimo ter rodado.
@@ -63,9 +65,14 @@ real sem repetir a medição.
 
 ## Limitações
 
-- **Ataques apenas de dados (S5) escapam por construção.** Corromper um valor de
-  telemetria ou um setpoint do ADCS sem desviar o fluxo é invisível para o
-  detector. Isso não é um defeito de implementação: é a fronteira da técnica.
+- **Ataques apenas de dados escapam por construção — medido, não suposto.** O S5
+  foi implementado e executado: dois telecomandos bem formados corrompem o campo
+  `authenticated` do bloco de configuração por escrita fora de limites na tabela
+  de parâmetros, e em seguida um comando privilegiado legítimo passa na checagem
+  que deveria ter falhado. Nenhuma aresta ilegal é executada porque **todas as
+  arestas são legais**. O monitor reporta zero violações, o satélite continua
+  transmitindo telemetria normalmente, e a missão está comprometida. Isso não é
+  defeito de implementação: é a fronteira estrutural da técnica.
 - **Volume de trace.** ~200 MB/s de trace do QEMU é inviável para downlink. Em
   hardware real o ETM comprime agressivamente e o MTB só guarda uma janela
   circular, mas a questão de quanto trace cabe no orçamento de banda continua
