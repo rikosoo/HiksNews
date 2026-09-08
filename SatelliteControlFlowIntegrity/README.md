@@ -270,8 +270,8 @@ Lista completa, verificada nas fontes primárias, em
 [`docs/02-related-work.md`](docs/02-related-work.md).
 
 - **[3]** X. Tan, Z. Zhao. *SHERLOC: Secure and Holistic Control-Flow Violation
-  Detection on Embedded Systems.* CCS '23, Copenhague. DOI: 10.1145/3576915.3623077
-  — base metodológica deste trabalho.
+  Detection on Embedded Systems.* CCS '23, Copenhague, pp. 1332–1346.
+  DOI: 10.1145/3576915.3623077 — base metodológica deste trabalho.
 - **[5]** Y. Du et al. *Holistic Control-Flow Protection on Real-Time Embedded
   Systems with Kage.* USENIX Security '22, pp. 2281–2298 — a família concorrente,
   que paga o custo a bordo.
@@ -282,6 +282,7 @@ Lista completa, verificada nas fontes primárias, em
 - **[9]** M. Scholl, T. Suloway. *Introduction to Cybersecurity for Commercial
   Satellite Operations.* NIST IR 8270, jul. 2023.
 - **[10]** CCSDS 355.0-B-2. *Space Data Link Security Protocol*, jul. 2022.
+- **[11]** CCSDS 232.0-B-4. *TC Space Data Link Protocol*, out. 2021.
 - **[6]** Arm Ltd. *Embedded Trace Macrocell Architecture Specification.* ARM IHI 0064.
 
 > **Correção:** o SPARTA é mantido pela **The Aerospace Corporation**, não pela

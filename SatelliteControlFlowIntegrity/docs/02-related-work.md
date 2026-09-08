@@ -30,7 +30,7 @@ flash, RAM e ciclos que não temos.
 **[3]** X. Tan, Z. Zhao. *SHERLOC: Secure and Holistic Control-Flow Violation
 Detection on Embedded Systems.* Em *Proceedings of the 2023 ACM SIGSAC
 Conference on Computer and Communications Security (CCS '23)*, Copenhague,
-Dinamarca, nov. 2023.
+Dinamarca, 26–30 nov. 2023, pp. 1332–1346.
 DOI: [10.1145/3576915.3623077](https://doi.org/10.1145/3576915.3623077)
 Código: https://github.com/CactiLab/Sherloc-Cortex-M-CFVD
 
@@ -109,8 +109,13 @@ CCSDS 355.0-B-2 (Blue Book), jul. 2022.
 https://ccsds.org/Pubs/355x0b2.pdf
 
 **[11]** CCSDS. *TC Space Data Link Protocol.* Recommended Standard,
-CCSDS 232.0-B (Blue Book). https://ccsds.org/Pubs/232x0b3s.pdf
+CCSDS 232.0-B-4 (Blue Book), Issue 4, out. 2021.
+https://ccsds.org/Pubs/232x0b4e1c1.pdf
 — base do formato de telecomando que o protótipo simplifica.
+
+> **Correção:** a edição citada anteriormente, CCSDS 232.0-B-3, está
+> **superseded** — o sufixo `s` no nome do arquivo (`232x0b3s.pdf`) marca
+> justamente isso. A edição em vigor é a 232.0-B-4, de outubro de 2021.
 
 ---
 
@@ -149,8 +154,14 @@ de contato, irreversibilidade da ação e ambiguidade entre ataque e evento de
 radiação. É essa lacuna que este trabalho ocupa, e a contribuição é a
 transposição e a avaliação, não uma técnica de detecção nova.
 
-## Pendências de verificação
+## Notas de proveniência
 
-- Páginas exatas do SHERLOC [3] nos anais do CCS '23 — não confirmadas em fonte
-  acessível (o portal da ACM está bloqueado neste ambiente). O DOI está correto.
-- Revisão exata do CCSDS 232.0-B [11] a confirmar antes da submissão.
+Todas as entradas foram verificadas. Duas observações sobre como:
+
+- As páginas do SHERLOC [3] (1332–1346) foram corroboradas por duas consultas
+  independentes, a segunda via listas de referência de trabalhos que o citam. O
+  portal da ACM está bloqueado neste ambiente, então a confirmação não veio do
+  registro editorial direto; o DOI, esse sim, está verificado. Vale reconferir no
+  PDF dos anais antes da submissão final.
+- A revisão do CCSDS 232.0-B foi corrigida de B-3 para **B-4** durante a
+  verificação: a primeira estava superseded.

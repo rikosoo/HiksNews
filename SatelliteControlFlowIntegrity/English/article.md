@@ -513,8 +513,8 @@ Principles, Implementations, and Applications.* ACM TISSEC, v. 13, n. 1,
 Oct. 2009. DOI: 10.1145/1609956.1609960
 
 [3] X. Tan, Z. Zhao. *SHERLOC: Secure and Holistic Control-Flow Violation
-Detection on Embedded Systems.* In *CCS '23*, Copenhagen, Denmark, Nov. 2023.
-DOI: 10.1145/3576915.3623077
+Detection on Embedded Systems.* In *CCS '23*, Copenhagen, Denmark,
+26–30 Nov. 2023, pp. 1332–1346. DOI: 10.1145/3576915.3623077
 
 [4] X. Tan, Z. Ma, S. Pinto, L. Guan, N. Zhang, J. Xu, Z. Lin, H. Hu, Z. Zhao.
 *SoK: Where's the "up"?! A Comprehensive (bottom-up) Study on the Security of
@@ -539,7 +539,7 @@ Satellite Operations.* NIST IR 8270, July 2023.
 CCSDS 355.0-B-2 (Blue Book), July 2022.
 
 [11] CCSDS. *TC Space Data Link Protocol.* Recommended Standard,
-CCSDS 232.0-B (Blue Book).
+CCSDS 232.0-B-4 (Blue Book), Issue 4, Oct. 2021.
 
 [12] J. A. Guerrero-Saade, M. Hegel. *AcidRain — A Modem Wiper Rains Down on
 Europe.* SentinelLabs, 31 Mar. 2022.
@@ -548,6 +548,3 @@ Europe.* SentinelLabs, 31 Mar. 2022.
 Annual Technical Conference, FREENIX Track*, 2005, pp. 41–46.
 
 [14] FreeRTOS Kernel V11.1.0. https://github.com/FreeRTOS/FreeRTOS-Kernel
-
-> Exact page numbers for [3] in the CCS '23 proceedings could not be confirmed
-> from an accessible source; the DOI is verified. See `docs/02-related-work.md`.
