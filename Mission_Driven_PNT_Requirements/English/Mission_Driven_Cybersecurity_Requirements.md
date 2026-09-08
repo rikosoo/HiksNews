@@ -2,6 +2,8 @@
 
 **A framework for deriving minimum onboard cyber requirements from PNT threat chains**
 
+> Portuguese version: `../Portuguese/Requisitos_de_Ciberseguranca_Orientados_a_Missao.md`. This English version is normative; corrections should be applied to both.
+
 ---
 
 ## Abstract
