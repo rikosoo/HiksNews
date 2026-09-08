@@ -80,6 +80,14 @@ real sem repetir a medição.
 - **Chamadas indiretas exigem CFG conservador.** O conjunto de alvos permitidos
   é aproximado pelas funções cujo endereço aparece na imagem — mais permissivo
   que o conjunto real.
+- **Interrupções e troca de contexto são isentas, e isso é uma lacuna em relação
+  ao estado da arte.** O SHERLOC (Tan e Zhao, CCS '23) resolve exatamente esse
+  problema com um algoritmo de detecção *interrupt- and scheduling-aware*. Nosso
+  monitor aceita entrada e retorno de exceção sem verificar. Um atacante que
+  consiga forjar um retorno de exceção passa despercebido — e o `PendSV`,
+  disparado a 1 kHz pelo escalonador, é uma superfície ampla para isso. Fechar
+  essa lacuna é o item mais importante do roadmap técnico.
+
 - **Artefatos do emulador.** O QEMU reinicia um bloco quando chega uma
   interrupção, o que o monitor precisa tratar explicitamente; e o encadeamento
   de blocos (`nochain` desligado) omite execuções. Nenhum dos dois existe no ETM

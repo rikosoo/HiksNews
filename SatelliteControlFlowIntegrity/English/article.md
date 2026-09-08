@@ -39,8 +39,15 @@ result.
 
 Orbital infrastructure is no longer an isolated domain. Low Earth Orbit
 constellations underpin communications, navigation and Earth observation, and the
-February 2022 Viasat attack showed the attack surface to be exploitable in
-practice, with immediate geopolitical effect.
+February 2022 attack on Viasat's KA-SAT network showed the sector to be a real
+target with operational effect at scale — including spillover into civil
+infrastructure, as 5,800 wind turbines in Germany lost remote monitoring [12].
+
+Precision matters here: that attack bricked **ground modems**, through a
+misconfigured VPN appliance in the management segment; it was not a compromise
+of on-board firmware. It motivates this work by demonstrating capable and
+interested adversaries in the space domain, not by being an instance of the
+threat we attack here.
 
 What makes the space domain distinct is not the nature of the vulnerabilities —
 buffer overflows in protocol parsers are the same as in any embedded system — but
@@ -120,7 +127,7 @@ isolation rests entirely on the MPU, which is optional and frequently unused.
 
 ### 2.3 Hardware trace on Cortex-M
 
-Cortex-M cores expose, through CoreSight, the **ETM** (Embedded Trace Macrocell),
+Cortex-M cores expose, through CoreSight [6, 7], the **ETM** (Embedded Trace Macrocell),
 which emits a compressed stream of taken branches, and the **MTB** (Micro Trace
 Buffer), a circular buffer in RAM. Both operate **outside the firmware's execution
 domain**: compromised firmware cannot forge its own trace. This property is what
@@ -254,7 +261,10 @@ flight software cannot silence it.
 ### 6.3 What is accepted without checking
 
 Two classes of transition are accepted unconditionally, and declaring them is part
-of the result:
+of the result — not least because this is where SHERLOC [3] is ahead of this
+prototype: it solves the problem with an interrupt- and scheduling-aware
+detection algorithm, whereas our monitor simply exempts both cases. That is a gap
+of ours relative to the state of the art, not a difference in scope.
 
 - **Exception entry**: the branch is performed by hardware and originates from no
   program instruction; no CFG contains it.
@@ -386,20 +396,36 @@ recovery. A detector with even a low but non-zero false positive rate needs a
 tiered response policy — which is why Section 6.4 separates detection from
 reaction.
 
-### 8.3 Relation to SHERLOC
+### 8.3 Positioning
 
-| Axis | SHERLOC (IoT) | This work |
+Two families of defense compete in this space, and what separates them is where
+the cost is paid.
+
+**Kage** [5] protects application and kernel control data on FreeRTOS through
+compiler transformation and memory region separation — that is, it pays the cost
+**on board**, in flash, RAM and cycles. **SHERLOC** [3] uses hardware trace and
+neither instruments the protected software nor changes its memory layout, moving
+the cost off the board. This work follows the second family, which is what
+explains the zero overhead in Section 7.
+
+Compared to SHERLOC specifically:
+
+| Axis | SHERLOC [3] | This work |
 |---|---|---|
-| Target | IoT firmware on Cortex-M | Flight software on FreeRTOS |
-| Evidence | Hardware trace | Hardware trace |
+| Target | Embedded firmware, ARMv8-M / Cortex-M33 | Flight software on FreeRTOS, Cortex-M3 |
+| Evidence | Hardware trace | Hardware trace (QEMU standing in for ETM) |
+| Interrupts and context switches | **Handled** by a dedicated algorithm | **Exempted** — declared gap (6.3) |
 | Threat | Local or network attacker | Compromised ground station, hostile uplink |
 | Response | Alert / halt | Safe mode, quarantine, security telemetry |
 | Dominant constraint | Cost and memory | Power, radiation, contact window, irreversibility |
+| Validation | Real hardware (V2M-MPS2+) | Emulation |
 
 The contribution is not a new detection technique, and presenting it as one would
-be incorrect. It is the transfer to a threat model in which **incident response
-cannot depend on immediate human intervention**, and the evaluation under the
-metrics that context imposes.
+be incorrect — in detection capability this prototype sits **behind** SHERLOC,
+not ahead of it. The contribution is the transfer to a threat model in which
+**incident response cannot depend on immediate human intervention**, the
+evaluation under the metrics that context imposes, and the empirical delimitation
+of the technique's boundary (Section 7.4).
 
 ---
 
@@ -455,7 +481,10 @@ a detail.
 4. **Data-flow integrity** to cover the S5 class.
 5. **Remote attestation over telemetry**, turning the monitor's verdict into
    evidence verifiable at the ground station.
-6. **Mapping the covered techniques onto the MITRE SPARTA framework.**
+6. **Interrupt and context-switch handling** at SHERLOC's level [3], removing the
+   exemption of Section 6.3.
+7. **Mapping the covered techniques onto the SPARTA framework** [8], from The
+   Aerospace Corporation.
 
 ---
 
@@ -474,15 +503,51 @@ product flaw is exploited or disclosed.
 
 ## References
 
-*(to be completed with full citations — see `docs/02-related-work.md`)*
+[1] M. Abadi, M. Budiu, Ú. Erlingsson, J. Ligatti. *Control-Flow Integrity.*
+In *Proceedings of the 12th ACM Conference on Computer and Communications
+Security (CCS '05)*, Alexandria, VA, USA, Nov. 2005, pp. 340–353.
+DOI: 10.1145/1102120.1102165
 
-1. SHERLOC — control-flow violation detection in embedded firmware via hardware
-   trace.
-2. M. Abadi, M. Budiu, Ú. Erlingsson, J. Ligatti. *Control-Flow Integrity.*
-   ACM CCS, 2005.
-3. MITRE **SPARTA** — Space Attack Research & Tactic Analysis.
-4. CCSDS — telecommand, telemetry and Space Data Link Security standards.
-5. NIST IR 8270 — *Introduction to Cybersecurity for Commercial Satellite
-   Operations.*
-6. ARM. *CoreSight ETM and Micro Trace Buffer — Architecture Specification.*
-7. FreeRTOS Kernel V11.1.0 — documentation and source.
+[2] M. Abadi, M. Budiu, Ú. Erlingsson, J. Ligatti. *Control-Flow Integrity
+Principles, Implementations, and Applications.* ACM TISSEC, v. 13, n. 1,
+Oct. 2009. DOI: 10.1145/1609956.1609960
+
+[3] X. Tan, Z. Zhao. *SHERLOC: Secure and Holistic Control-Flow Violation
+Detection on Embedded Systems.* In *CCS '23*, Copenhagen, Denmark, Nov. 2023.
+DOI: 10.1145/3576915.3623077
+
+[4] X. Tan, Z. Ma, S. Pinto, L. Guan, N. Zhang, J. Xu, Z. Lin, H. Hu, Z. Zhao.
+*SoK: Where's the "up"?! A Comprehensive (bottom-up) Study on the Security of
+Arm Cortex-M Systems.* In *18th USENIX WOOT*, 2024, pp. 149–169.
+
+[5] Y. Du, Z. Shen, K. Dharsee, J. Zhou, R. J. Walls, J. Criswell. *Holistic
+Control-Flow Protection on Real-Time Embedded Systems with Kage.* In *31st
+USENIX Security Symposium*, Boston, MA, USA, Aug. 2022, pp. 2281–2298.
+
+[6] Arm Ltd. *Embedded Trace Macrocell Architecture Specification, ETMv4.0 to
+ETMv4.6.* ARM IHI 0064.
+
+[7] Arm Ltd. *CoreSight Architecture Specification.* ARM IHI 0029.
+
+[8] The Aerospace Corporation. *SPARTA — Space Attack Research & Tactic
+Analysis.* https://sparta.aerospace.org/
+
+[9] M. Scholl, T. Suloway. *Introduction to Cybersecurity for Commercial
+Satellite Operations.* NIST IR 8270, July 2023.
+
+[10] CCSDS. *Space Data Link Security Protocol.* Recommended Standard,
+CCSDS 355.0-B-2 (Blue Book), July 2022.
+
+[11] CCSDS. *TC Space Data Link Protocol.* Recommended Standard,
+CCSDS 232.0-B (Blue Book).
+
+[12] J. A. Guerrero-Saade, M. Hegel. *AcidRain — A Modem Wiper Rains Down on
+Europe.* SentinelLabs, 31 Mar. 2022.
+
+[13] F. Bellard. *QEMU, a Fast and Portable Dynamic Translator.* In *USENIX
+Annual Technical Conference, FREENIX Track*, 2005, pp. 41–46.
+
+[14] FreeRTOS Kernel V11.1.0. https://github.com/FreeRTOS/FreeRTOS-Kernel
+
+> Exact page numbers for [3] in the CCS '23 proceedings could not be confirmed
+> from an accessible source; the DOI is verified. See `docs/02-related-work.md`.

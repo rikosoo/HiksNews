@@ -216,7 +216,7 @@ SatelliteControlFlowIntegrity/
 ├── English/article.md          <- full article (EN)
 ├── docs/
 │   ├── 01-threat-model.md      <- modelo de ameaças e superfície de ataque
-│   ├── 02-related-work.md      <- SHERLOC, CFI, atestação remota, SPARTA
+│   ├── 02-related-work.md      <- referências verificadas: SHERLOC, Kage, CFI, SPARTA
 │   ├── 03-architecture.md      <- projeto do monitor e do sistema alvo
 │   ├── 04-methodology.md       <- bancada, vulnerabilidade e os 5 ataques
 │   ├── 05-evaluation.md        <- métricas, resultados e limitações
@@ -251,7 +251,7 @@ SatelliteControlFlowIntegrity/
 - [ ] Repetições múltiplas por cenário, com distribuição de latência
 - [ ] Porte para hardware real com ETM/MTB e medição de energia
 - [x] Paper completo redigido, PT-BR + EN
-- [ ] Referências fechadas com citação completa
+- [x] Referências fechadas com citação completa e verificadas nas fontes
 - [ ] Revisão final para submissão
 
 ## ⚖️ Escopo ético
@@ -264,18 +264,28 @@ falha de produto de terceiros é explorada ou divulgada aqui.
 
 ---
 
-## 📚 Referências iniciais
+## 📚 Referências principais
 
-- SHERLOC — detecção de violação de fluxo de controle em firmware embarcado via trace de hardware
-- Abadi et al., *Control-Flow Integrity* (CCS 2005)
-- MITRE **SPARTA** — Space Attack Research & Tactic Analysis
-- CCSDS — padrões de telecomando/telemetria e segurança
-- NIST SP 800-53 / IR 8270 (cibersegurança para operações espaciais)
-- ARM CoreSight ETM / MTB — documentação de trace em Cortex-M
+Lista completa, verificada nas fontes primárias, em
+[`docs/02-related-work.md`](docs/02-related-work.md).
 
-> As referências serão fechadas com citação completa em `docs/02-related-work.md`.
+- **[3]** X. Tan, Z. Zhao. *SHERLOC: Secure and Holistic Control-Flow Violation
+  Detection on Embedded Systems.* CCS '23, Copenhague. DOI: 10.1145/3576915.3623077
+  — base metodológica deste trabalho.
+- **[5]** Y. Du et al. *Holistic Control-Flow Protection on Real-Time Embedded
+  Systems with Kage.* USENIX Security '22, pp. 2281–2298 — a família concorrente,
+  que paga o custo a bordo.
+- **[1]** M. Abadi, M. Budiu, Ú. Erlingsson, J. Ligatti. *Control-Flow Integrity.*
+  CCS '05, pp. 340–353. DOI: 10.1145/1102120.1102165
+- **[8]** The Aerospace Corporation. *SPARTA — Space Attack Research & Tactic
+  Analysis.* https://sparta.aerospace.org/
+- **[9]** M. Scholl, T. Suloway. *Introduction to Cybersecurity for Commercial
+  Satellite Operations.* NIST IR 8270, jul. 2023.
+- **[10]** CCSDS 355.0-B-2. *Space Data Link Security Protocol*, jul. 2022.
+- **[6]** Arm Ltd. *Embedded Trace Macrocell Architecture Specification.* ARM IHI 0064.
 
----
+> **Correção:** o SPARTA é mantido pela **The Aerospace Corporation**, não pela
+> MITRE, como versões anteriores deste repositório afirmavam.
 
 ## 🤝 Contribuições
 
