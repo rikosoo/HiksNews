@@ -8,11 +8,11 @@
 
 Low Earth Orbit (LEO) spacecraft have become structurally dependent on Global Navigation Satellite Systems (GNSS) for orbit determination, time synchronisation, attitude support, payload geolocation and autonomous manoeuvring. The security literature treats this dependency almost exclusively as a *signal* problem — how to detect spoofing, how to reject jamming — while the space cybersecurity literature treats it almost exclusively as a *principle* problem — defence in depth, secure-by-design, threat-informed defence. The two bodies of work rarely meet, and the practical consequence is that mission teams are told that "GNSS can be spoofed" without ever being told what their spacecraft must therefore be able to do.
 
-This paper proposes **GNSS-CRF**, a cyber-resilience framework that closes that gap by treating Position, Navigation and Timing (PNT) not as a sensor input but as a *trust-bearing service* with a mission-derived service contract. GNSS-CRF defines a seven-stage derivation chain — **Mission Objective → GNSS Dependency → Threat → Effect → Detection → Mitigation → Cyber Requirement** — and a set of rules that make each transition traceable, so that a PNT attack scenario is transformed deterministically into a verifiable spacecraft requirement rather than into a recommendation.
+This paper proposes **GNSS-CRF**, a cyber-resilience framework that narrows that gap by treating Position, Navigation and Timing (PNT) not as a sensor input but as a *trust-bearing service* with a mission-derived service contract. It builds directly on recent work by Falco and colleagues on deriving minimum space cyber requirements from mission priorities, and is best understood as a deep, quantified specialisation of that approach to a single dependency (Section 2.5). GNSS-CRF defines a seven-stage derivation chain — **Mission Objective → GNSS Dependency → Threat → Effect → Detection → Mitigation → Cyber Requirement** — and a set of rules that make each transition traceable, so that a PNT attack scenario is transformed deterministically into a verifiable spacecraft requirement rather than into a recommendation.
 
 Three arguments distinguish the framework from a checklist. First, we argue that in spacecraft the dominant hazard is not the loss of a fix but **estimator poisoning**: false PNT is absorbed by the navigation filter and by propagated ephemeris, so its effect *persists after the attack has ended* and detection must therefore be state-aware, not merely signal-aware. Second, we show that LEO orbital dynamics constitute an **exploitable defender asymmetry** — a spacecraft's trajectory is constrained by physics that a ground-based spoofer must reproduce with high fidelity through a short, geometrically unfavourable window — and we convert this asymmetry into concrete detection primitives that require no cryptographic support. Third, we argue that the correct unit of mitigation is not a filter but an **authority gate**: PNT trust state must govern which autonomous actions the spacecraft is permitted to take, and no irreversible actuation should be executable under untrusted PNT.
 
-Applying the chain to eight representative LEO mission objectives, and then in full depth to a hypothetical maritime-surveillance smallsat constellation, yields a **tiered Minimum Control Baseline (MCB)** of sixteen controls, mapped to MITRE SPARTA tactics, NIST SP 800-53 Rev. 5 control families and NIST IR 8323. We also propose an evaluation methodology and five resilience metrics (time-to-detect, spoof-induced state error at detection, holdover error growth, authority-gate correctness, and mission availability under attack), together with a hardware-in-the-loop validation plan. The case study produces a result the framework did not assume: under orbital-feasibility gating, a single ground-based spoofer is bounded to roughly one kilometre of induced position error by the spacecraft's own thrust capability and by pass geometry, and that bound scales with propulsion class across three orders of magnitude — making propulsion sizing a determinant of PNT attack surface. The framework is analytical and has not been flight-validated; Section 10 states this limitation explicitly and Section 11 defines the experimental programme required to close it.
+Applying the chain to eight representative LEO mission objectives, and then in full depth to a hypothetical maritime-surveillance smallsat constellation, yields a **tiered Minimum Control Baseline (MCB)** of sixteen controls, mapped to SPARTA tactics, NIST SP 800-53 Rev. 5 control families and NIST IR 8323. We also propose an evaluation methodology and five resilience metrics (time-to-detect, spoof-induced state error at detection, holdover error growth, authority-gate correctness, and mission availability under attack), together with a hardware-in-the-loop validation plan. The case study produces a result the framework did not assume: under orbital-feasibility gating, a single ground-based spoofer is bounded to roughly one kilometre of induced position error by the spacecraft's own thrust capability and by pass geometry, and that bound scales with propulsion class across three orders of magnitude — making propulsion sizing a determinant of PNT attack surface. The framework is analytical and has not been flight-validated; Section 10 states this limitation explicitly and Section 11 defines the experimental programme required to close it.
 
 **Keywords:** LEO satellites, GNSS spoofing, jamming, PNT resilience, secure-by-design, space cybersecurity, SPARTA, requirements engineering, threat modelling.
 
@@ -26,7 +26,7 @@ A modern LEO spacecraft is, in a very literal sense, a GNSS receiver with a payl
 
 This dependency has grown at the same time that the PNT threat environment has deteriorated. Jamming and spoofing of GNSS have moved from laboratory demonstrations to routine features of contested regions, and the 2022 Viasat KA-SAT incident demonstrated that adversaries willing to target space-enabled infrastructure will do so with capability and intent. Meanwhile, the economics of the smallsat industry have pushed operators toward commercial off-the-shelf receivers, unauthenticated civil signals, and software stacks that were never designed under an assumption of adversarial inputs.
 
-The security response has been bifurcated. On one side, the navigation community — most prominently Humphreys and colleagues — has produced a mature body of work on the mechanics of spoofing, its detectability, and the design of authentication schemes. On the other, the space cybersecurity community — Falco, MITRE's SPARTA project, SPD-5, NIST IR 8270/8323 and the IEEE P3349 effort — has produced principles, threat matrices and control catalogues for space systems as a whole. What is missing between them is a *method*: a repeatable procedure that takes a specific mission, a specific PNT dependency and a specific attack, and produces a specific, testable requirement that an engineer can put into a spacecraft specification and a reviewer can verify.
+The security response has been bifurcated. On one side, the navigation community — most prominently Humphreys and colleagues — has produced a mature body of work on the mechanics of spoofing, its detectability, and the design of authentication schemes. On the other, the space cybersecurity community — Falco, the Aerospace Corporation's SPARTA project, SPD-5, NIST IR 8270/8323 and the IEEE P3349 effort — has produced principles, threat matrices and control catalogues for space systems as a whole. What is missing between them is a *method*: a repeatable procedure that takes a specific mission, a specific PNT dependency and a specific attack, and produces a specific, testable requirement that an engineer can put into a spacecraft specification and a reviewer can verify.
 
 ### 1.2 Central research question
 
@@ -36,7 +36,9 @@ Two words in that question carry the analytical weight. *Minimum* means the fram
 
 ### 1.3 Contributions
 
-1. **A formal derivation chain (GNSS-CRF)** that converts PNT attacks into spacecraft cybersecurity requirements through seven traceable stages, with explicit transition rules at each stage (Section 4).
+The general idea of deriving minimum space cyber requirements from mission priorities is **not** claimed as novel here: it is due to Falco and colleagues (Section 2.5), and this paper is best read as a deep specialisation of that idea to one dependency.
+
+1. **A formal derivation chain (GNSS-CRF)** specialised to PNT, converting GNSS attacks into spacecraft cybersecurity requirements through seven traceable stages with explicit transition rules and quantitative adequacy conditions at each stage (Section 4).
 2. **The PNT Service Contract**, a per-objective specification of accuracy, integrity, holdover and authenticity bounds that makes "GNSS dependency" a measurable quantity rather than a qualitative statement (Section 4.2).
 3. **The estimator-poisoning argument**: a characterisation of why deception attacks on spacecraft differ fundamentally from deception attacks on terrestrial receivers, and the recovery requirements this implies (Sections 3.4 and 4.3).
 4. **LEO dynamics as a detection primitive**: four detection tests derived from orbital mechanics and LEO signal geometry that are unavailable to terrestrial users and require no cryptographic support (Section 4.3, stage 5).
@@ -75,6 +77,10 @@ The navigation security literature, developed substantially by Humphreys and the
 
 **Cryptographic authentication helps but does not close the problem.** Navigation message authentication — Galileo's OSNMA, and the Chimera concept for GPS — allows a receiver to verify that the navigation data it decoded originated with the constellation operator. This defeats data-level forgery. It does not by itself defeat meaconing (authentic signals recorded and replayed with delay), because the replayed bits are genuine; defeating replay requires additional timing constraints. Furthermore, schemes based on delayed key disclosure impose an authentication latency that must be reconciled with a mission's holdover budget — a trade this framework makes explicit in Section 4.2.
 
+The published figures make that trade concrete rather than abstract. Galileo's OSNMA entered its public observation phase on 15 November 2021 and was declared operationally available on 24 July 2025. AFRL's Chimera signal enhancement for GPS L1C, flown as an experiment on the NTS-3 satellite launched on 12 August 2025, authenticates a standalone receiver — one with access to the GNSS signal alone — approximately **once every three minutes**, with faster intervals (of order seconds) available only to users who can receive the key over an out-of-band channel. A three-minute authentication interval is comfortably inside a six-hour orbit-determination holdover budget and comfortably outside the reaction time available to an autonomous collision-avoidance decision. Whether cryptographic authentication is a usable control for a given objective is therefore not a general question about the scheme; it is a question about that objective's `η`, which is exactly what the framework's adequacy condition (i) forces an analyst to compute.
+
+**Interference is observable from orbit.** Humphreys' group has also published multi-year results from GNSS interference monitoring conducted *from* low Earth orbit, geolocating terrestrial jamming sources from a LEO platform. This matters to the present paper in two ways: it is direct empirical evidence that the LEO vantage point carries exploitable information about terrestrial RF interference, and it supports the attributability argument made for detection layer D4 in Section 4.3.
+
 **LEO PNT is an emerging alternative.** Recent work, including Humphreys' investigations into opportunistic PNT from broadband LEO downlinks, points toward diversification of PNT sources. This framework treats such sources as candidate alternative navigation inputs (Section 4.3, stage 6) while noting that they are not yet mature enough to be assumed present in a minimum baseline.
 
 ### 2.3 Space system cybersecurity principles (the Falco line of work)
@@ -91,28 +97,44 @@ The second source literature approaches spacecraft as cyber-physical systems rat
 
 ### 2.4 SPARTA as the threat-modelling substrate
 
-MITRE's SPARTA (Space Attack Research and Tactic Analysis) provides an ATT&CK-style matrix for space systems, organising adversary behaviour into tactics spanning reconnaissance, resource development, initial access, execution, persistence, defence evasion, lateral movement, exfiltration and impact, each populated with space-specific techniques and countermeasures.
+SPARTA (Space Attack Research and Tactic Analysis), developed and published by **The Aerospace Corporation**, provides an ATT&CK-style matrix tailored to space systems, spanning the space, link, ground and user segments. Its nine tactics are Reconnaissance (ST0001), Resource Development (ST0002), Initial Access (ST0003), Execution, Persistence, Defense Evasion, Lateral Movement, Exfiltration and Impact, each populated with space-specific techniques, sub-techniques and countermeasures.
 
 GNSS-CRF uses SPARTA at two points in the chain. At stage 3 (Threat), SPARTA supplies the vocabulary and the completeness check: a threat enumeration is only defensible if it has been walked against a published matrix rather than assembled from the analyst's imagination. At stage 7 (Cyber Requirement), SPARTA technique identifiers become the traceability anchor that ties a mission-specific requirement back to a documented adversary behaviour, which is what makes the requirement auditable by a third party.
 
 *Note on citation hygiene:* SPARTA technique identifiers are versioned and change between releases. Throughout this paper we name SPARTA **tactics**, which are stable, and mark technique identifiers as fields to be populated against the live matrix at the time of use. Analysts applying the framework should pin the matrix version in their traceability record.
 
-### 2.5 The gap
+### 2.5 The closest prior work
+
+One publication sits considerably closer to this paper than the rest of either literature, and honesty about the novelty claim requires stating so plainly. Falco, Boschetti, Vecellio Segate, Maple and colleagues, in *Minimum Requirements for Space System Cybersecurity — Ensuring Cyber Access to Space* (IEEE SMC-IT, 2024), propose a scalable, extensible method for deriving minimum cyber design principles, and subsequent requirements, for a space system **from a stated mission priority**. They test it on the mission priority of preserving access to space by preventing permanent loss of control of a satellite, and they express the output as minimum-requirement 'shall' statements.
+
+That is the same fundamental move this paper makes — mission priority first, requirements as the output artefact, 'shall' statements as the format — and the general claim to have invented mission-driven derivation of minimum space cyber requirements therefore belongs to that work, not to this one. What this paper adds is depth in one dimension that a general method necessarily leaves open:
+
+- **A specific, quantified dependency.** Their method takes a mission priority; GNSS-CRF takes a mission objective *and a PNT Service Contract* with numerical accuracy, integrity, holdover and authenticity bounds (Section 4.2), which is what permits the adequacy conditions of Section 4.3 and the arithmetic of Section 6 to exist at all.
+- **A specific threat physics.** GNSS-CRF is built around the PNT attack surface — spoofing, meaconing, jamming, receiver exploitation and time-drag — rather than around loss of control generally.
+- **Effect persistence in estimators.** The estimator-poisoning analysis of Section 3.4 has no counterpart in a principle-level method.
+- **Detection as a first-class stage.** Their chain runs from priority to principle to requirement; GNSS-CRF inserts detection and mitigation as separate stages with their own selection rules, because for PNT the requirement is largely determined by what can be detected and how fast.
+- **Authority gating.** Binding autonomous authority to a PNT trust state (Section 4.5) is, to our reading, not present in the prior method.
+
+*Caveat, stated for the reader's protection:* the full text of the SMC-IT paper could not be retrieved during preparation of this draft, and the characterisation above is based on its abstract and published metadata. **It must be read in full and this subsection revised accordingly before submission.** If its method turns out to already encompass any of the five points above, the corresponding contribution claim in Section 1.3 must be withdrawn or narrowed.
+
+### 2.6 The gap
 
 Table 1 states the gap directly.
 
-| | Navigation security literature | Space cybersecurity literature | GNSS-CRF |
-|---|---|---|---|
-| Primary object | The signal and the receiver | The spacecraft and the enterprise | The mission function |
-| Threat treatment | Deep, quantitative, RF-specific | Broad, tactic-level, matrix-driven | RF threats consumed via SPARTA vocabulary |
-| Output | Detection algorithms, authentication schemes | Principles, control catalogues, threat matrices | Verifiable spacecraft requirements |
-| Handles estimator persistence | Rarely (terrestrial receivers are usually memoryless) | No (not modelled at this granularity) | Explicitly (Section 3.4) |
-| Handles autonomy authority | No | Partially (via general access control) | Explicitly (Section 4.5) |
-| Traceability to mission | Absent | Asserted as a principle | Mechanised as a derivation chain |
+| | Navigation security literature | Space cybersecurity literature | Falco et al. 2024 (closest prior work) | GNSS-CRF |
+|---|---|---|---|---|
+| Primary object | The signal and the receiver | The spacecraft and the enterprise | The mission priority | The mission objective and its PNT contract |
+| Threat treatment | Deep, quantitative, RF-specific | Broad, tactic-level, matrix-driven | Loss of control, generally | PNT-specific (T1–T9), via SPARTA vocabulary |
+| Output | Detection algorithms, authentication schemes | Principles, control catalogues, threat matrices | Minimum-requirement 'shall' statements | 'Shall' statements with bounds and V&V methods |
+| Quantified dependency | N/A | No | Not to our reading | Yes — `⟨D, α, ι, η, A⟩` (Section 4.2) |
+| Handles estimator persistence | Rarely (terrestrial receivers are usually memoryless) | No | No | Explicitly (Section 3.4) |
+| Detection as a derivation stage | Is the whole subject | No | No | Yes, with adequacy conditions (Section 4.3) |
+| Handles autonomy authority | No | Partially (via general access control) | Not to our reading | Explicitly (Section 4.5) |
+| Traceability to mission | Absent | Asserted as a principle | Mechanised | Mechanised, with numerical bounds |
 
-**Table 1.** Positioning of GNSS-CRF relative to the two source literatures.
+**Table 1.** Positioning of GNSS-CRF relative to the two source literatures and to the closest prior work. Entries in the Falco et al. column are marked "to our reading" because they rest on that paper's abstract and metadata rather than its full text — see the caveat in Section 2.5.
 
-The gap is not that either literature is wrong. It is that neither produces the artefact a spacecraft programme actually needs at design freeze: a requirement, with a bound, with a verification method, traceable to both a mission objective and a documented threat.
+The gap is not that either literature is wrong, nor that nobody has tried to bridge them — Section 2.5 shows that the bridge has been started. It is that the general bridge, by being general, cannot carry the quantities that PNT resilience turns on: an accuracy tolerance, a holdover budget, a detection latency, and the adequacy conditions that relate them. A method that stops at the 'shall' statement leaves the hardest question — *is this requirement sufficient?* — unanswerable. What a spacecraft programme needs at design freeze is a requirement with a bound, a verification method, and a demonstration that detection is fast enough to matter, traceable to both a mission objective and a documented threat.
 
 ---
 
@@ -635,13 +657,14 @@ The framework makes claims that the testbed can refute, and we state them so tha
 We state these plainly, because the framework's credibility depends on not overclaiming.
 
 1. **No experimental validation.** GNSS-CRF is an analytical construction. None of the metrics of Section 8 has been measured, and predictions P1–P3 are untested. Section 8.2 is a proposal, not a report of results.
-3. **The case study is hypothetical and its arithmetic is bounding, not predictive.** TERRA-SENTINEL is fictional and its contract values are illustrative. The ≈1 km spoof bound of Section 6.3 is a best-case figure that assumes a detection threshold set tightly at `a_max`; a real threshold must absorb dynamics-model error, drag and solar-radiation-pressure variability and measurement noise, and a loose margin degrades the bound proportionally. The bound also assumes a single ground site — multi-site or airborne adversaries relax it quadratically in the extended window. The number is an existence proof that a computable bound exists, not a performance claim.
-2. **No flight heritage.** The framework has not been applied to a flown mission, and the operational cost of trust-state false alarms in a real programme is unknown.
+2. **The case study is hypothetical and its arithmetic is bounding, not predictive.** TERRA-SENTINEL is fictional and its contract values are illustrative. The ≈1 km spoof bound of Section 6.3 is a best-case figure that assumes a detection threshold set tightly at `a_max`; a real threshold must absorb dynamics-model error, drag and solar-radiation-pressure variability and measurement noise, and a loose margin degrades the bound proportionally. The bound also assumes a single ground site — multi-site or airborne adversaries relax it quadratically in the extended window. The number is an existence proof that a computable bound exists, not a performance claim.
+3. **No flight heritage.** The framework has not been applied to a flown mission, and the operational cost of trust-state false alarms in a real programme is unknown.
 4. **Detection performance is asserted, not characterised.** The claim that layer D4 detects self-consistent spoofs rests on physical reasoning. The achievable `P_d`/`P_fa` operating points, and their dependence on attack walk-off rate, orbital regime, filter tuning and dynamics-model fidelity, are precisely what has not been quantified. This is the framework's most significant open item.
 5. **Contract parameters are mission-specific.** The framework tells an analyst what to compute, not what the answer is. Two teams applying it to similar missions may derive different `η` values, and the framework provides no calibration procedure to reconcile them.
 6. **The threat model excludes the insider and the compromised ground segment.** An adversary with command authority is out of scope by construction (Section 3.1), though MCB-12's reliance on authenticated ground uploads means that a compromised ground segment degrades the recovery path — a coupling the framework acknowledges but does not solve.
-7. **The literature review is structural rather than exhaustive.** We characterise the Humphreys and Falco lines of work at the level of their positions and results. **Every citation in Section 12 should be verified against the original source before this paper is submitted anywhere**, and specific technical figures quoted from those works should be checked against the published values rather than taken from this summary.
-8. **SPARTA mapping is at tactic granularity.** Technique-level mapping requires a pinned matrix version and has not been performed.
+7. **The literature review is structural rather than exhaustive, and three citations remain incomplete.** The reference list has been checked against primary or authoritative secondary sources, and the entries that could not be completed are marked **[unverified]** in Section 12: the page range for Bhatti and Humphreys (2017), the page range for Falco (2019), and the exact author list for the SMC-IT 2024 minimum-requirements paper. Two substantive corrections were made during verification and are recorded here for transparency: SPARTA is a product of **The Aerospace Corporation**, not MITRE, as an earlier draft of this paper stated; and the closest prior work (Section 2.5) was absent from that draft entirely. The review remains structural — it characterises the two source literatures at the level of their positions and results rather than surveying them exhaustively — and a full systematic review is outstanding.
+8. **The closest prior work has been characterised from its abstract, not its full text.** See the caveat in Section 2.5. This is the single most important verification task remaining, because the novelty claims in Section 1.3 depend on it.
+9. **SPARTA mapping is at tactic granularity.** Technique-level mapping requires a pinned matrix version and has not been performed.
 
 ---
 
@@ -660,47 +683,51 @@ Three further findings surprised us in the course of the construction and are wo
 1. **Build the testbed of Section 8.2 and test P1.** Characterising the `P_d`/`P_fa` operating curve of orbital-dynamics plausibility checking against walk-off rate is the single highest-value next experiment, because the framework's most distinctive claim rests on it.
 2. **Quantify estimator poisoning (P2)** across filter architectures, and derive checkpointing and rollback policies from the measured recovery dynamics.
 3. **Measure the availability cost of authority gating (P3)**, since Rule 2's operational acceptability depends entirely on its false-alarm burden.
-4. **Complete the technique-level SPARTA mapping** against a pinned matrix version, and propose PNT-specific countermeasure entries where the matrix is thin.
-5. **Develop a calibration procedure for contract parameters**, so that `α`, `ι`, `η` and `A` are derived consistently across missions rather than per analyst.
-6. **Extend the framework to alternative PNT sources**, including LEO-PNT from broadband downlinks, and to constellation-scale cross-vehicle detection (MCB-16), where the economics of attack and defence appear most favourable to the defender.
+4. **Complete the technique-level SPARTA mapping** against a pinned matrix version (v2.0 or later), and propose PNT-specific countermeasure entries where the matrix is thin.
+5. **Reconcile with the closest prior work** by obtaining and analysing the SMC-IT 2024 minimum-requirements method in full, and either narrowing this paper's claims or, preferably, expressing GNSS-CRF as a PNT instantiation of that method — which would strengthen both.
+6. **Develop a calibration procedure for contract parameters**, so that `α`, `ι`, `η` and `A` are derived consistently across missions rather than per analyst.
+7. **Extend the framework to alternative PNT sources**, including LEO-PNT from broadband downlinks, and to constellation-scale cross-vehicle detection (MCB-16), where the economics of attack and defence appear most favourable to the defender.
 
 ---
 
 ## 12. References
 
-> **Verification notice.** The following list identifies the bodies of work on which this paper builds. Bibliographic details — years, venues, volume and page numbers — **must be verified against the original sources before submission**, and quantitative figures attributed to these works should be checked against their published values. See Limitation 6.
+> **Verification status.** The entries below were checked against primary or authoritative secondary sources during preparation of this draft. Items marked **[unverified]** could not be confirmed in that pass — in every case because the publisher's site was unreachable from the drafting environment, not because the work is in doubt — and must be completed before submission. Nothing in this list is cited from memory alone.
 
 **PNT threats, spoofing and detection**
 
-1. Humphreys, T. E., et al. "Assessing the Spoofing Threat: Development of a Portable GPS Civilian Spoofer." *Proceedings of the ION GNSS Conference*.
-2. Humphreys, T. E. "Detection Strategy for Cryptographic GNSS Anti-Spoofing." *IEEE Transactions on Aerospace and Electronic Systems*.
-3. Humphreys, T. E. "Interference." Chapter in *Springer Handbook of Global Navigation Satellite Systems*.
-4. Psiaki, M. L., and Humphreys, T. E. "GNSS Spoofing and Detection." *Proceedings of the IEEE*.
-5. Humphreys, T. E., et al. Work on opportunistic PNT from broadband LEO downlink signals (Starlink-based PNT).
-6. Publications on the University of Texas UAV and surface-vessel spoofing demonstrations.
+1. Humphreys, T. E., Ledvina, B. M., Psiaki, M. L., O'Hanlon, B. W., and Kintner, P. M., Jr. "Assessing the Spoofing Threat: Development of a Portable GPS Civilian Spoofer." *Proceedings of the ION GNSS Conference*, Savannah, GA, 16–19 September 2008.
+2. Humphreys, T. E. "Detection Strategy for Cryptographic GNSS Anti-Spoofing." *IEEE Transactions on Aerospace and Electronic Systems*, Vol. 49, No. 2, 2013, pp. 1073–1090.
+3. Psiaki, M. L., and Humphreys, T. E. "GNSS Spoofing and Detection." *Proceedings of the IEEE*, Vol. 104, No. 6, June 2016, pp. 1258–1270.
+4. Humphreys, T. E. "Interference." In Teunissen, P. J. G., and Montenbruck, O. (eds.), *Springer Handbook of Global Navigation Satellite Systems*, Springer, Cham, 2017, pp. 469–503. DOI 10.1007/978-3-319-42928-1_16.
+5. Kerns, A. J., Shepard, D. P., Bhatti, J. A., and Humphreys, T. E. "Unmanned Aircraft Capture and Control Via GPS Spoofing." *Journal of Field Robotics*, Vol. 31, No. 4, 2014, pp. 617–636. DOI 10.1002/rob.21513.
+6. Bhatti, J., and Humphreys, T. E. "Hostile Control of Ships via False GPS Signals: Demonstration and Detection." *NAVIGATION*, Vol. 64, No. 1, 2017. DOI 10.1002/navi.183. *(Page range **[unverified]**.)* Field demonstration against a 65 m yacht in the Mediterranean.
+7. Murrian, M. J., Narula, L., Iannucci, P. A., Budzien, S., O'Hanlon, B. W., Powell, S. P., and Humphreys, T. E. "First Results from Three Years of GNSS Interference Monitoring from Low Earth Orbit." *NAVIGATION*, Vol. 68, No. 4, 2021, pp. 673–685. Preprint: arXiv:2009.04093.
+8. Humphreys, T. E., Iannucci, P. A., et al. "Signal Structure of the Starlink Ku-Band Downlink." UT Austin Radionavigation Laboratory. *(Journal venue, volume and year **[unverified]**.)* Related: "Timing Properties of the Starlink Ku-Band Downlink," arXiv:2501.05302.
 
 **Space system cybersecurity**
 
-7. Falco, G. "The Vacuum of Space Cyber Security." *AIAA SPACE Conference*.
-8. Falco, G. "Cybersecurity Principles for Space Systems." *Journal of Aerospace Information Systems*.
-9. Falco, G. "Job One for Space Force: Space Asset Cybersecurity." Belfer Center, Harvard Kennedy School.
-10. IEEE P3349 — Space System Cybersecurity standardisation working group.
+9. Falco, G. "The Vacuum of Space Cyber Security." *2018 AIAA SPACE and Astronautics Forum and Exposition*, AIAA, 17–19 September 2018. DOI 10.2514/6.2018-5275.
+10. Falco, G. "Cybersecurity Principles for Space Systems." *Journal of Aerospace Information Systems*, Vol. 16, No. 2, 2019 (published online December 2018). DOI 10.2514/1.I010693. *(Page range **[unverified]** — AIAA's site was unreachable.)* This paper is widely credited as an input to SPD-5, which carries the same title.
+11. Falco, G. "Job One for Space Force: Space Asset Cybersecurity." Cyber Security Project, Belfer Center for Science and International Affairs, Harvard Kennedy School, July 2018.
+12. Falco, G., Boschetti, N., Vecellio Segate, R., Maple, C., et al. "Minimum Requirements for Space System Cybersecurity — Ensuring Cyber Access to Space." *2024 IEEE 10th International Conference on Space Mission Challenges for Information Technology (SMC-IT)*, Mountain View, CA, 2024, pp. 78–88. DOI 10.1109/SMC-IT61443.2024.00016. *(Complete author list and order **[unverified]** — indexes disagree on which co-authors are named.)* **Closest prior work; see Section 2.5. Full text must be read before submission.**
+13. IEEE P3349, Space System Cybersecurity Working Group, IEEE Standards Association. G. Falco, founding chair. International technical standard for space system cybersecurity, developed by a working group spanning 20+ countries.
 
 **Frameworks, standards and policy**
 
-11. MITRE. *SPARTA: Space Attack Research and Tactic Analysis* (matrix version to be pinned at time of use).
-12. NIST IR 8323. *Foundational PNT Profile: Applying the Cybersecurity Framework for the Responsible Use of Positioning, Navigation, and Timing Services*.
-13. NIST IR 8270. *Introduction to Cybersecurity for Commercial Satellite Operations*.
-14. NIST SP 800-53 Rev. 5. *Security and Privacy Controls for Information Systems and Organizations*.
-15. Space Policy Directive-5 (SPD-5). *Cybersecurity Principles for Space Systems*.
-16. Executive Order 13905. *Strengthening National Resilience Through Responsible Use of Positioning, Navigation, and Timing Services*.
-17. CCSDS 355.0-B. *Space Data Link Security Protocol*.
-18. European Union Agency for the Space Programme. Galileo Open Service Navigation Message Authentication (OSNMA) documentation.
-19. Chimera (CHIPS-Message Robust Authentication) signal authentication specification and NTS-3 experiment documentation.
+14. The Aerospace Corporation. *SPARTA: Space Attack Research and Tactic Analysis.* https://sparta.aerospace.org/ — v2.0 published; **pin the matrix version in the traceability record at time of use.** Note: SPARTA is an Aerospace Corporation product, not a MITRE one.
+15. Bartock, M., Brule, J., Li-Baboud, Y.-S., Lightman, S., McCarthy, J., Meldorf, K., Reczek, K., Northrip, D., Scholz, A., and Suloway, T. *NIST IR 8323r1: Foundational PNT Profile — Applying the Cybersecurity Framework for the Responsible Use of Positioning, Navigation, and Timing (PNT) Services.* NIST, January 2023.
+16. *NIST IR 8270: Introduction to Cybersecurity for Commercial Satellite Operations.* NIST, July 2023.
+17. *NIST SP 800-53 Rev. 5: Security and Privacy Controls for Information Systems and Organizations.* NIST, September 2020, with subsequent updates (patch release 5.2.0). Controls cited in Table 11 are from this revision.
+18. *Space Policy Directive-5 (SPD-5): Cybersecurity Principles for Space Systems.* Signed 4 September 2020; published in the Federal Register 10 September 2020.
+19. *Executive Order 13905: Strengthening National Resilience Through Responsible Use of Positioning, Navigation, and Timing Services.* Signed 12 February 2020; Federal Register 18 February 2020. NIST IR 8323 was produced in fulfilment of this order.
+20. *CCSDS 355.0-B-2: Space Data Link Security Protocol.* Recommended Standard (Blue Book), Issue 2, July 2022. (Issue 1: September 2015.)
+21. EUSPA / European GNSS Service Centre. *Galileo Open Service Navigation Message Authentication (OSNMA).* Public observation phase from 15 November 2021; service declared operational 24 July 2025, with publication of the OSNMA Service Definition Document.
+22. Air Force Research Laboratory. *Chimera (Chips-Message Robust Authentication) signal enhancement for GPS L1C.* Flown as an experiment on the Navigation Technology Satellite-3 (NTS-3), launched 12 August 2025 aboard a ULA Vulcan from Cape Canaveral. Standalone-receiver authentication interval ≈ 3 minutes; ≈ 1.5–6 s with an out-of-band key channel. See also ION publication "Chips-Message Robust Authentication (Chimera) for GPS Civilian Signals."
 
 **Incidents**
 
-20. Analyses of the February 2022 Viasat KA-SAT modem disruption (AcidRain wiper).
+23. SentinelLabs. *AcidRain: A Modem Wiper Rains Down on Europe.* 31 March 2022. Analysis of the wiper deployed against Viasat KA-SAT modems on 24 February 2022 via compromise of the KA-SAT management network. Note for the present paper's scope (Section 1.4): this was a **ground-segment** compromise, not an attack on a spacecraft.
 
 ---
 
