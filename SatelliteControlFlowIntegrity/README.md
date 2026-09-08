@@ -32,25 +32,34 @@ ataca em IoT — e que este trabalho leva para o domínio espacial.
 
 ## 🧩 Arquitetura do protótipo
 
-### 1. Sistema alvo — "computador de bordo"
+### 1. Bancada de laboratório
 
 ```
-Ground Station
-       |
-       | comando (TC / telecomando)
-       v
-Communication module (UART / RF simulado)
-       |
-       v
-ARM Cortex-M
-       |
-       v
+Laptop
+   |
+   |  Ground Station Simulator
+   v
+UART / radio simulation
+   |
+   v
+ARM Cortex-M board
+   |
+   v
 FreeRTOS
-       |
-       v
-Satellite flight software
-       |
-       v
+   |
+   v
+CubeSat-like Flight Software
+   |
+   v
+SHERLOC / CFI monitor
+```
+
+Concretamente, hoje: `gs.py` no laptop conversa por socket TCP com a serial do
+QEMU (`mps2-an385`, Cortex-M3 @ 25 MHz), que roda FreeRTOS V11.1.0 e cinco
+tarefas de voo — `tc_rx`, `adcs`, `eps`, `tm_tx`, `payload`. O monitor consome o
+trace de execução **fora** do domínio do firmware.
+
+```
 +--------------+
 | ADCS         |  controle de atitude
 | Telemetry    |  telemetria (TM)
@@ -111,6 +120,54 @@ determinístico exigido pelo RTOS.
 
 ---
 
+## 💥 Os cinco ataques controlados
+
+Todos atravessam **a mesma vulnerabilidade injetada** — o campo `LEN` do
+telecomando usado sem validação como comprimento de cópia para um buffer de
+pilha de 64 bytes em `tc_handle_frame()`. O que muda entre eles é o tipo de
+desvio de fluxo, não o bug de entrada.
+
+| ID | Ataque | Mecanismo | Efeito a bordo |
+|---|---|---|---|
+| ATK-1 | Buffer overflow | sobrescreve o LR salvo | `eps_kill_switch()` — barramento desligado |
+| ATK-2 | Function pointer corruption | sobrescreve o ponteiro de dispatch | `payload_wipe()` |
+| ATK-3 | ROP / control-flow hijacking | cadeia de 2 estágios via `pop {r7, pc}` | `payload_wipe()` |
+| ATK-4 | Malicious task scheduling | hook de debug esquecido na imagem | task rogue acima do ADCS — apontamento perdido |
+| ATK-5 | Unauthorized privileged function | entra no corpo pulando a checagem de auth | escrita privilegiada sem autenticação |
+
+## 📊 Resultados medidos
+
+| Métrica | Valor |
+|---|---|
+| **Attack detection** | **5/5 — 100%** |
+| **False positives** | **0** (1,4 M de blocos em S0, S1 e S4) |
+| **Detection latency** | **0,001 – 0,055 ms** (26 – 1379 instruções @ 25 MHz) |
+| **CPU overhead (bordo)** | **0%** |
+| **Flash overhead (bordo)** | **0 KB** |
+| **Memory overhead (bordo)** | **0 KB** |
+| Modelo de CFG (monitor) | 929 KB |
+| Throughput do monitor | ~34 MB de trace/s |
+
+O overhead de bordo é zero **por construção**: o firmware não é instrumentado, o
+monitor consome o trace que o hardware já produz. O custo migra para a banda do
+canal de trace — que é a limitação prática mais séria e está discutida em
+`docs/05-evaluation.md`. Tabela completa em `docs/06-results.md`.
+
+## ▶️ Como reproduzir
+
+```bash
+cd prototype
+./tools/fetch_deps.sh              # FreeRTOS V11.1.0 (pinado)
+make -C firmware                   # arm-none-eabi-gcc
+
+python3 eval/run_scenario.py S0    # voo nominal
+python3 eval/run_scenario.py ATK-1 # ataque: veja a missão ser perdida
+python3 eval/run_matrix.py --out out/results.md   # matriz completa + métricas
+```
+
+Requisitos: `arm-none-eabi-gcc`, `qemu-system-arm` e Python 3. O monitor não tem
+dependências externas — a desmontagem vem do `objdump`.
+
 ## 🔬 Relação com o SHERLOC — e o que há de novo
 
 | Eixo | SHERLOC (IoT) | Este trabalho (espaço) |
@@ -131,24 +188,27 @@ depender de intervenção humana imediata.
 
 ```
 SatelliteControlFlowIntegrity/
-├── README.md                  <- este arquivo
-├── Portuguese/
-│   └── artigo.md              <- artigo completo (PT-BR)
-├── English/
-│   └── article.md             <- full article (EN)
+├── README.md
+├── Portuguese/artigo.md        <- artigo completo (PT-BR)
+├── English/article.md          <- full article (EN)
 ├── docs/
-│   ├── 01-threat-model.md     <- modelo de ameaças e superfície de ataque
-│   ├── 02-related-work.md     <- SHERLOC, CFI, atestação remota, SPARTA
-│   ├── 03-architecture.md     <- projeto do monitor e do sistema alvo
-│   ├── 04-methodology.md      <- como o experimento é conduzido
-│   └── 05-evaluation.md       <- métricas, resultados e limitações
-├── prototype/
-│   ├── firmware/              <- flight software (FreeRTOS, Cortex-M)
-│   ├── ground_station/        <- envio de telecomandos e fuzzing de pacotes
-│   ├── attacks/               <- PoCs de hijacking controlado
-│   ├── monitor/               <- extrator de CFG + verificador de trace
-│   └── eval/                  <- scripts de medição e datasets
-└── assets/                    <- diagramas e figuras
+│   ├── 01-threat-model.md      <- modelo de ameaças e superfície de ataque
+│   ├── 02-related-work.md      <- SHERLOC, CFI, atestação remota, SPARTA
+│   ├── 03-architecture.md      <- projeto do monitor e do sistema alvo
+│   ├── 04-methodology.md       <- bancada, vulnerabilidade e os 5 ataques
+│   ├── 05-evaluation.md        <- métricas, resultados e limitações
+│   └── 06-results.md           <- tabela bruta gerada pelo harness
+└── prototype/
+    ├── firmware/               <- flight software: FreeRTOS + 5 tarefas + parser
+    ├── ground_station/gs.py    <- simulador da estação de solo
+    ├── attacks/attacks.py      <- ATK-1..ATK-5
+    ├── monitor/
+    │   ├── cfg_extract.py      <- ELF -> modelo de fluxo de controle (build time)
+    │   └── cfi_monitor.py      <- trace -> detecção de violação (runtime)
+    ├── eval/
+    │   ├── run_scenario.py     <- executa um cenário de ponta a ponta
+    │   └── run_matrix.py       <- matriz completa + tabela de métricas
+    └── tools/fetch_deps.sh
 ```
 
 ---
@@ -157,16 +217,17 @@ SatelliteControlFlowIntegrity/
 
 - [x] Definir pergunta de pesquisa e escopo
 - [x] Estrutura do repositório e esqueleto do artigo
+- [x] Firmware alvo: 5 tarefas FreeRTOS + parser de telecomando em QEMU
+- [x] Vulnerabilidade controlada e os 5 ataques reproduzíveis
+- [x] Extração estática de CFG a partir do ELF
+- [x] Monitor consumindo trace de execução
+- [x] Primeira rodada de avaliação (detecção, FP, latência, overhead)
 - [ ] Modelo de ameaças formalizado (docs/01)
 - [ ] Revisão de literatura consolidada (docs/02)
-- [ ] Firmware alvo mínimo: 4 tarefas FreeRTOS + parser de telecomando
-- [ ] Vulnerabilidade controlada e PoC de hijacking reproduzível
-- [ ] Extração estática de CFG a partir do ELF
-- [ ] Monitor consumindo trace (QEMU primeiro, hardware depois)
-- [ ] Avaliação: detecção, falsos positivos, overhead, custo energético
+- [ ] Cenário S5 (ataque só de dados) implementado como limite declarado
+- [ ] Repetições múltiplas por cenário, com distribuição de latência
+- [ ] Porte para hardware real com ETM/MTB e medição de energia
 - [ ] Redação final PT-BR + EN
-
----
 
 ## ⚖️ Escopo ético
 
