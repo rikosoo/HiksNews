@@ -1,6 +1,6 @@
-# A Cyber-Resilience Framework for GNSS-Dependent LEO Satellites
+# Mission-Driven Cybersecurity Requirements for GNSS-Dependent LEO Spacecraft
 
-**Deriving minimum onboard cybersecurity requirements from PNT threat chains**
+**A framework for deriving minimum onboard cyber requirements from PNT threat chains**
 
 ---
 
@@ -12,7 +12,7 @@ This paper proposes **GNSS-CRF**, a cyber-resilience framework that closes that 
 
 Three arguments distinguish the framework from a checklist. First, we argue that in spacecraft the dominant hazard is not the loss of a fix but **estimator poisoning**: false PNT is absorbed by the navigation filter and by propagated ephemeris, so its effect *persists after the attack has ended* and detection must therefore be state-aware, not merely signal-aware. Second, we show that LEO orbital dynamics constitute an **exploitable defender asymmetry** — a spacecraft's trajectory is constrained by physics that a ground-based spoofer must reproduce with high fidelity through a short, geometrically unfavourable window — and we convert this asymmetry into concrete detection primitives that require no cryptographic support. Third, we argue that the correct unit of mitigation is not a filter but an **authority gate**: PNT trust state must govern which autonomous actions the spacecraft is permitted to take, and no irreversible actuation should be executable under untrusted PNT.
 
-Applying the chain to eight representative LEO mission objectives yields a **tiered Minimum Control Baseline (MCB)** of sixteen controls, mapped to MITRE SPARTA tactics, NIST SP 800-53 Rev. 5 control families and NIST IR 8323. We also propose an evaluation methodology and five resilience metrics (time-to-detect, spoof-induced state error at detection, holdover error growth, authority-gate correctness, and mission availability under attack), together with a hardware-in-the-loop validation plan. The framework is analytical and has not been flight-validated; Section 9 states this limitation explicitly and Section 10 defines the experimental programme required to close it.
+Applying the chain to eight representative LEO mission objectives, and then in full depth to a hypothetical maritime-surveillance smallsat constellation, yields a **tiered Minimum Control Baseline (MCB)** of sixteen controls, mapped to MITRE SPARTA tactics, NIST SP 800-53 Rev. 5 control families and NIST IR 8323. We also propose an evaluation methodology and five resilience metrics (time-to-detect, spoof-induced state error at detection, holdover error growth, authority-gate correctness, and mission availability under attack), together with a hardware-in-the-loop validation plan. The case study produces a result the framework did not assume: under orbital-feasibility gating, a single ground-based spoofer is bounded to roughly one kilometre of induced position error by the spacecraft's own thrust capability and by pass geometry, and that bound scales with propulsion class across three orders of magnitude — making propulsion sizing a determinant of PNT attack surface. The framework is analytical and has not been flight-validated; Section 10 states this limitation explicitly and Section 11 defines the experimental programme required to close it.
 
 **Keywords:** LEO satellites, GNSS spoofing, jamming, PNT resilience, secure-by-design, space cybersecurity, SPARTA, requirements engineering, threat modelling.
 
@@ -41,12 +41,13 @@ Two words in that question carry the analytical weight. *Minimum* means the fram
 3. **The estimator-poisoning argument**: a characterisation of why deception attacks on spacecraft differ fundamentally from deception attacks on terrestrial receivers, and the recovery requirements this implies (Sections 3.4 and 4.3).
 4. **LEO dynamics as a detection primitive**: four detection tests derived from orbital mechanics and LEO signal geometry that are unavailable to terrestrial users and require no cryptographic support (Section 4.3, stage 5).
 5. **The PNT Trust State Machine and authority gating**, a mechanism that binds autonomous spacecraft authority to PNT trust level, with the rule that no irreversible actuation is permitted under untrusted PNT (Section 4.5).
-6. **A tiered Minimum Control Baseline** of sixteen controls answering the central question, mapped to SPARTA, NIST SP 800-53 Rev. 5 and NIST IR 8323 (Section 6).
-7. **An evaluation methodology** with five metrics and a hardware-in-the-loop validation plan (Section 7).
+6. **A tiered Minimum Control Baseline** of sixteen controls answering the central question, mapped to SPARTA, NIST SP 800-53 Rev. 5 and NIST IR 8323 (Section 7).
+7. **A hypothetical case study** carried through to numbers, which yields a quantitative bound on achievable spoof-induced error, identifies a previously unstated coupling between propulsion architecture and PNT attack surface, and demonstrates the framework's ability to *eliminate* requirements as well as generate them (Section 6).
+8. **An evaluation methodology** with five metrics, three falsifiable predictions and a hardware-in-the-loop validation plan (Section 8).
 
 ### 1.4 Scope and structure
 
-The framework addresses the **space segment** of a LEO mission: the spacecraft, its GNSS receiver, its navigation filter, its clock and its autonomy. Ground-segment and link-layer security (command authentication, TT&C encryption, ground station hardening) are treated as assumed-present preconditions, not because they are unimportant — the Viasat incident shows the opposite — but because they are well covered elsewhere and because the contribution here is specifically about PNT dependency. Section 2 reviews the two source literatures and states the gap. Section 3 gives the threat model. Section 4 defines the framework. Section 5 applies it. Section 6 presents the baseline. Sections 7–10 cover evaluation, discussion, limitations and conclusions.
+The framework addresses the **space segment** of a LEO mission: the spacecraft, its GNSS receiver, its navigation filter, its clock and its autonomy. Ground-segment and link-layer security (command authentication, TT&C encryption, ground station hardening) are treated as assumed-present preconditions, not because they are unimportant — the Viasat incident shows the opposite — but because they are well covered elsewhere and because the contribution here is specifically about PNT dependency. Section 2 reviews the two source literatures and states the gap. Section 3 gives the threat model. Section 4 defines the framework. Section 5 applies it across eight mission objectives, and Section 6 applies it in depth to a hypothetical mission. Section 7 presents the baseline. Sections 8–11 cover evaluation, discussion, limitations and conclusions.
 
 ---
 
@@ -84,7 +85,7 @@ The second source literature approaches spacecraft as cyber-physical systems rat
 
 **Mission priorities must drive security decisions.** Not all functions of a spacecraft deserve equal protection, and a control catalogue applied uniformly wastes the scarce resources that space systems have least of. Security investment should follow from what the mission must not lose. GNSS-CRF operationalises this by starting every derivation chain at a mission objective and by scaling the resulting requirement's priority to the objective's criticality.
 
-**Minimum viable requirements are the useful output.** For the smallsat and commercial sector, a maximal control set is aspirational; a defensible floor is actionable. The Minimum Control Baseline of Section 6 is written in that spirit.
+**Minimum viable requirements are the useful output.** For the smallsat and commercial sector, a maximal control set is aspirational; a defensible floor is actionable. The Minimum Control Baseline of Section 7 is written in that spirit.
 
 **Threat-informed defence needs a space-specific model.** Generic IT threat models do not capture RF-layer attacks, orbital dynamics, ground-segment coupling or the irreversibility of on-orbit actions.
 
@@ -381,7 +382,149 @@ Three observations emerge from the application that were not evident before it.
 
 ---
 
-## 6. The Minimum Control Baseline
+## 6. Hypothetical Case Study: the TERRA-SENTINEL Constellation
+
+Section 5 demonstrated the breadth of the framework across objectives. This section demonstrates its depth on a single hypothetical mission, carried through to numbers. The mission is fictional and the parameter values are illustrative — chosen to be representative of the smallsat class rather than drawn from any real programme — but the arithmetic is real, and it produces a result we did not anticipate when constructing the framework.
+
+### 6.1 Mission definition
+
+**TERRA-SENTINEL** is a hypothetical twelve-satellite maritime domain awareness constellation.
+
+| Attribute | Value |
+|---|---|
+| Orbit | 550 km sun-synchronous, ~95.6 min period, three planes |
+| Spacecraft | 180 kg class smallsat, ×12 |
+| Payload | Optical imager (1.5 m GSD) + AIS receiver |
+| GNSS | COTS dual-frequency receiver, GPS L1/L2 + Galileo E1/E5a, OSNMA-capable |
+| Attitude | Two star trackers, coarse sun sensors, magnetometer, reaction wheels |
+| Propulsion | Monopropellant, 1 N thrust — station keeping and collision avoidance |
+| Crosslink | S-band inter-satellite link within plane |
+| Clock | OCXO baseline; chip-scale atomic clock under trade |
+| Autonomy | Autonomous conjunction avoidance enabled |
+| Operating context | Routine passes over regions with documented GNSS interference |
+
+**Table 7.** TERRA-SENTINEL reference mission (hypothetical).
+
+The mission is deliberately chosen to sit at the point of maximum tension: it is cost-constrained enough that Tier 2 controls are unaffordable, autonomous enough that Rule 2 has real consequences, and operationally exposed enough that the threat is not hypothetical even though the mission is.
+
+### 6.2 PNT Service Contracts
+
+Applying stages 1 and 2 of the chain yields the following contracts. Values are illustrative; a real programme derives them from its own hazard and performance analyses.
+
+| Objective | `κ` | `D` | `α` | `ι` | `η` | `A` |
+|---|---|---|---|---|---|---|
+| **O1** Orbit determination for conjunction screening | Catastrophic | P, V | 100 m (3σ) | 10⁻⁵ per screening | 6 h | source |
+| **O2** Onboard time reference | Critical | T | 10 µs | 10⁻⁶ | 24 h | source |
+| **O3** Autonomous collision avoidance | Catastrophic | P, V | as O1 | as O1 | warning-to-burn interval | source |
+| **O4** Payload geolocation | Major | P, T | 15 m | 10⁻³ | one imaging pass (~10 min) | data |
+| **O5** Ground contact scheduling | Minor | P, T | 1 s | 10⁻² | 72 h | none |
+
+**Table 8.** PNT Service Contracts for TERRA-SENTINEL (illustrative values).
+
+Two observations arise before any threat is considered, which is itself an argument for the framework: stage 2 pays for itself even if stage 3 is never reached.
+
+First, **O2's contract is already in tension with the baseline hardware.** An OCXO with an effective post-calibration fractional frequency offset of 10⁻¹⁰ drifts 8.64 µs over the 24-hour holdover budget, consuming 86% of the 10 µs tolerance with no allowance for ageing or thermal excursion. The contract, written down honestly, converts the clock selection from a cost decision into a resilience decision: a CSAC at 10⁻¹¹ yields 0.86 µs over the same period, a tenfold margin. This is exactly the kind of design consequence that "GNSS can be spoofed" never produces.
+
+Second, **O5 requires no authenticity at all** (`A = none`, `α` = 1 s, `η` = 72 h). Its contract is so loose that no PNT attack within the threat model can violate it. The framework therefore eliminates O5 from further analysis and records why. A method that generates requirements for everything is not a method; the ability to justify *not* levying a requirement is what makes the output defensible to a programme manager holding a mass and cost budget.
+
+### 6.3 Scenario A — smooth-takeover spoofing during a pass
+
+**Setup.** An adversary operating a ground-based spoofer within the constellation's coverage region executes a T4 overlay attack against a single spacecraft. The adversary knows the orbit from the public catalogue and can predict the pass. The attack is skilfully executed: signals are power-matched at acquisition and raised gradually, so that C/N0 rises by less than the D1 alarm threshold, and the spoofed constellation is fully self-consistent, so that D2 residual testing sees nothing. Layers D1 and D2 are, by construction, defeated.
+
+**The D4 test.** Layer D4 asks a different question: is the reported motion physically possible for *this vehicle*? Walking the reported position away from truth requires the spoofed solution to exhibit an apparent acceleration that the spacecraft is not capable of producing. TERRA-SENTINEL's maximum propulsive acceleration is
+
+```
+a_max = F / m = 1 N / 180 kg = 5.56 × 10⁻³ m/s²
+```
+
+If the navigation subsystem rejects any solution implying a sustained unmodelled acceleration above `a_max` (plus a margin for dynamics-model error and measurement noise), the adversary is forced to keep the walk-off within that bound. The maximum position offset achievable is then bounded by the attack window:
+
+```
+offset_max = ½ · a_max · T_vis²
+```
+
+where `T_vis` is the duration for which the ground spoofer can illuminate the target. For a 550 km orbit, a horizon-to-horizon pass over a single ground site is on the order of ten minutes, so `T_vis ≈ 600 s`:
+
+```
+offset_max = ½ × 5.56 × 10⁻³ × 600²  ≈  1.0 km
+```
+
+**The result.** A single ground-based spoofer cannot induce more than approximately one kilometre of position error against this spacecraft without becoming dynamically infeasible and therefore detectable — *regardless of how sophisticated the spoofer is at the signal layer*. The bound comes from the vehicle's own thrust and from orbital geometry, not from the quality of the attacker's radio.
+
+**The corollary, which is the more interesting finding.** The bound scales with propulsive capability, and therefore so does the attack surface:
+
+| Propulsion | `a_max` (m/s²) | Bounded offset over a 600 s pass |
+|---|---|---|
+| Monopropellant, 1 N / 180 kg | 5.56 × 10⁻³ | ≈ 1000 m |
+| Electric, 1 mN / 180 kg | 5.56 × 10⁻⁶ | ≈ 1 m |
+| Non-manoeuvring (residual drag/SRP only, ~10⁻⁶) | ~10⁻⁶ | ≈ 0.18 m |
+
+**Table 9.** Spoof-offset bound under Keplerian feasibility gating, by propulsion class.
+
+**Low-thrust spacecraft are structurally far harder to spoof, and non-manoeuvring spacecraft are very nearly immune** — under this gate, and assuming the gate is enforced. Propulsion sizing, a decision made for entirely unrelated reasons early in mission design, turns out to determine the spacecraft's PNT deception exposure by three orders of magnitude. To our knowledge this coupling between propulsion architecture and PNT attack surface has not been stated in either source literature, and it is a direct product of running the chain rather than reasoning about spoofing in general.
+
+**Honest qualifications.** Three, and they matter:
+
+1. The detection threshold cannot be exactly `a_max`. It must be `a_max + margin`, where the margin covers dynamics-model error, unmodelled drag and SRP variability, and measurement noise. A loose margin weakens the bound proportionally; the numbers above are therefore a *best-case* bound, and characterising the achievable margin is precisely prediction **P1** of Section 8.3.
+2. The gate must not fire on legitimate manoeuvres. The navigation subsystem must know when the propulsion system is commanded, which makes manoeuvre-state awareness a *security* requirement and not merely a navigation one — a coupling recorded as REQ-CS-03 below.
+3. The bound applies to a *single* ground site. Multi-site or airborne adversaries extend `T_vis` and relax the bound quadratically, which is the adversary's cheapest counter-move.
+
+**The adversary's adaptation, and why Rule 2 survives it.** A natural attacker response is to *ratchet*: stay within the feasibility gate on each pass and accumulate offset across many passes. This fails against TERRA-SENTINEL for a structural reason — the spacecraft returns to authentic signals for roughly 85 minutes of every 95.6-minute orbit, and authentic measurements pull the filter back. Ratcheting requires preventing re-anchoring between passes, which a single ground site cannot do.
+
+So the attacker's rational move is not to corrupt the *state* but to corrupt a *decision*: time the spoof to coincide with a planned conjunction-avoidance burn, and use the bounded one-kilometre error to turn a correct manoeuvre into a wrong one. One kilometre is small compared to a spoofer's ambitions but not small compared to a conjunction screening volume. This is the scenario in which the entire defence reduces to a single control — **MCB-02, no irreversible actuation under untrusted PNT** — and it is why we place authority gating above detection in the baseline. Detection bounds the error; only the authority gate bounds the *consequence*.
+
+### 6.4 Scenario B — regional jamming, and an eliminated requirement
+
+**Setup.** A T1 broadband jammer denies GNSS for the full duration of each pass over a contested region: one pass per orbit, roughly 600 s of denial in every 95.6 minutes.
+
+**Contract evaluation.** For O1, `η` = 6 h. A 600 s outage is an order of magnitude inside the holdover budget, and propagated ephemeris covers it comfortably. For O2, `η` = 24 h; the clock free-runs for 600 s, accruing well under a microsecond even on the OCXO. For O4, `η` is one imaging pass, and denial during the pass means the imagery from that pass is degraded — but the effect is E2, bounded, non-persistent, and visible.
+
+`violates()` returns **false** for O1 and O2, and **true only for O4**, whose consequence is loss of geolocation accuracy on affected images rather than loss of the mission.
+
+**What this demonstrates.** Jamming, the threat that receives the most attention operationally because it is the one people notice, produces the *weakest* requirement set for this mission: label the affected products (MCB-10) and accept the degradation. The framework says so explicitly, with arithmetic, rather than levying a control because jamming sounds serious. Meanwhile the threat that produces the catastrophic requirement — Scenario A's silent spoof — would produce no operator complaint at all while it was happening. This inversion between operational salience and actual risk is, we think, one of the more valuable things the framework surfaces.
+
+### 6.5 Scenario C — time-drag against the clock
+
+**Setup.** A T9 attack manipulates the timing solution slowly enough to stay below any jump-detection threshold, aiming to shift spacecraft time far enough to invalidate cryptographic validity windows and corrupt log ordering.
+
+**The rate gate.** MCB-07 requires that accepted clock corrections be bounded by a physically justified rate. Legitimate corrections cannot exceed the oscillator's own drift, so a gate set at three times the OCXO's 10⁻¹⁰ drift permits at most 0.3 µs per 1000 s. Within a 600 s pass, the adversary can therefore inject at most **0.18 µs**, and reaching the 10 µs tolerance of O2 would require roughly **56 passes** of uninterrupted, cumulative manipulation — with the same re-anchoring problem as Scenario A defeating the accumulation.
+
+**The structural result.** Scenarios A and C produce the same shape of answer by the same mechanism: *a physically justified rate bound, multiplied by a geometrically bounded attack window, bounds the adversary's total authority over the state.* This is the case study's principal theoretical contribution back to the framework, and it generalises beyond these two scenarios — wherever a defender can bound the legitimate rate of change of a quantity and the adversary's access is windowed, the achievable corruption is bounded without any cryptography at all.
+
+### 6.6 Derived requirement set
+
+Running stage 7 across the scenarios yields the following requirements for TERRA-SENTINEL.
+
+| ID | Requirement | Source | MCB | Verification |
+|---|---|---|---|---|
+| **REQ-CS-01** | The navigation subsystem SHALL reject GNSS-derived solutions implying sustained unmodelled acceleration exceeding `a_max` plus characterised model margin, and SHALL transition to UNTRUSTED within 60 s of onset. | A / O1 | MCB-03, MCB-01 | HIL against walk-off profiles |
+| **REQ-CS-02** | The spacecraft SHALL NOT execute any propulsive command while PNT trust is below NOMINAL, absent authenticated ground authorisation. | A / O3 | MCB-02 | Command-path test; AGC metric = 1.0 |
+| **REQ-CS-03** | The navigation subsystem SHALL receive authoritative manoeuvre state from the propulsion subsystem and SHALL suppress feasibility-gate alarms only for commanded manoeuvres. | A / O3 | MCB-03 | Integration test |
+| **REQ-CS-04** | The onboard clock SHALL maintain time within 10 µs over 24 h with no valid GNSS timing update. | B, C / O2 | MCB-06 | Analysis + thermal-vacuum characterisation |
+| **REQ-CS-05** | The receiver SHALL reject clock corrections exceeding three times the characterised oscillator drift rate. | C / O2 | MCB-07 | Injection test |
+| **REQ-CS-06** | All payload products SHALL carry the PNT trust state and holdover elapsed time at acquisition. | B / O4 | MCB-10 | Product inspection |
+| **REQ-CS-07** | The navigation subsystem SHALL checkpoint trusted state and SHALL support rollback and reinitialisation from an authenticated ground-supplied orbit or star-tracker-derived solution. | A / O1 | MCB-09, MCB-12 | HIL recovery test |
+| **REQ-CS-08** | Security-relevant PNT events SHALL be logged with monotonic ordering independent of the GNSS time source. | A, C | MCB-11 | Log inspection under time attack |
+| **REQ-CS-09** | Exit from UNTRUSTED SHALL require positive re-anchoring against a non-GNSS source; cessation of the anomaly SHALL NOT constitute re-anchoring. | A | MCB-01, MCB-12 | State-machine test |
+
+**Table 10.** Requirements derived for TERRA-SENTINEL.
+
+Nine requirements, all Tier 0, none requiring hardware the mission does not already carry — with the single exception of REQ-CS-04, which may drive the CSAC selection. That is the practical shape of the framework's output.
+
+### 6.7 What the case study establishes
+
+The case study is hypothetical, and it proves nothing empirically. What it does establish is that the framework is *generative*: run end to end on a concrete mission, it produced four results that were not inputs to it.
+
+1. **A quantitative spoof bound.** Keplerian feasibility gating bounds a single-site ground spoofer to ≈1 km of induced error against this spacecraft, from vehicle physics rather than signal processing.
+2. **Propulsion architecture as PNT attack surface.** The bound scales with thrust across three orders of magnitude, making a propulsion trade into a security trade.
+3. **The rate-bound × window-bound principle.** Scenarios A and C converge on the same structural defence, which appears to generalise beyond PNT.
+4. **The salience inversion.** The loudest threat (jamming) generated the weakest requirements; the silent one (spoofing) generated the catastrophic ones.
+
+It also produced one negative result worth stating: the framework eliminated O5 entirely and reduced jamming to a labelling requirement. A framework that only ever adds controls cannot be trusted to have analysed anything.
+
+---
+
+## 7. The Minimum Control Baseline
 
 This section answers the central research question. The baseline is tiered so that it scales from a university cubesat to critical infrastructure, and every control is stated as a capability rather than as a product.
 
@@ -416,9 +559,9 @@ This section answers the central research question. The baseline is tiered so th
 | **MCB-15** | Spatial discrimination: controlled-reception-pattern antenna or multi-element angle-of-arrival detection | Prevent / detect | SC-5, SI-4 |
 | **MCB-16** | Cross-vehicle PNT consistency checking across the constellation | Detect | SI-4, SC-5 |
 
-**Table 7.** The Minimum Control Baseline. SPARTA technique identifiers are deliberately omitted and should be populated against the pinned matrix version at time of use, per Section 2.4.
+**Table 11.** The Minimum Control Baseline. SPARTA technique identifiers are deliberately omitted and should be populated against the pinned matrix version at time of use, per Section 2.4.
 
-### 6.1 Why this is a *minimum*
+### 7.1 Why this is a *minimum*
 
 Three properties justify calling Tier 0 minimal rather than merely small.
 
@@ -428,17 +571,17 @@ Three properties justify calling Tier 0 minimal rather than merely small.
 
 **It is coverage-complete against the threat taxonomy.** Every threat T1–T9 is addressed by at least one Tier 0 control, and every effect class E1–E5 has at least one detection and one recovery control. Coverage completeness is a weaker claim than efficacy, and we do not overstate it: it means no threat is unaddressed, not that every threat is defeated.
 
-### 6.2 Mapping to external frameworks
+### 7.2 Mapping to external frameworks
 
 The baseline is deliberately expressed so that it can be consumed by existing compliance structures rather than competing with them. NIST IR 8323 (the foundational PNT profile applying the Cybersecurity Framework to responsible use of PNT services) provides the closest external anchor, and the mapping is direct: its *Identify* function corresponds to GNSS-CRF stages 1–2, *Protect* to the prevent mitigations, *Detect* to stage 5, and *Respond*/*Recover* to the trust state machine and re-anchoring controls. NIST IR 8270 and SPD-5 supply the space-sector framing, CCSDS security standards cover the link-layer preconditions assumed in Section 1.4, and IEEE P3349 is the standardisation venue in which requirements of this kind are most likely to find a normative home.
 
 ---
 
-## 7. Evaluation Methodology
+## 8. Evaluation Methodology
 
 A framework that proposes requirements must also propose how to tell whether they are met. We define five metrics and a validation environment.
 
-### 7.1 Metrics
+### 8.1 Metrics
 
 | Metric | Definition | Target property |
 |---|---|---|
@@ -448,11 +591,11 @@ A framework that proposes requirements must also propose how to tell whether the
 | **AGC** — authority-gate correctness | Fraction of irreversible commands correctly inhibited under sub-NOMINAL trust | Must be 1.0; anything less falsifies Rule 2 |
 | **MAA** — mission availability under attack | Fraction of mission objectives meeting their contracts during and after an attack episode | The headline resilience figure |
 
-**Table 8.** Evaluation metrics. TTD and SIE together characterise detection; HEG characterises graceful degradation; AGC characterises the safety property; MAA characterises the mission outcome.
+**Table 12.** Evaluation metrics. TTD and SIE together characterise detection; HEG characterises graceful degradation; AGC characterises the safety property; MAA characterises the mission outcome.
 
 A note on false alarms: `P_fa` must be evaluated jointly with TTD, because a detector tuned for speed will transition to UNTRUSTED on benign geometry changes, and a spacecraft that inhibits its own collision-avoidance manoeuvres on false alarms has traded one catastrophic failure mode for another. The framework does not resolve this trade; it requires that it be stated, measured, and defended per objective.
 
-### 7.2 Proposed validation environment
+### 8.2 Proposed validation environment
 
 We propose a hardware-in-the-loop testbed with four elements:
 
@@ -461,7 +604,7 @@ We propose a hardware-in-the-loop testbed with four elements:
 3. **Attack profile library** covering T1–T9, parameterised by walk-off rate for smooth-takeover spoofing, by delay for meaconing, by duty cycle for pulsed jamming, and by sub-threshold rate for time-drag.
 4. **Flight-representative software** running the actual navigation filter, trust state machine and command path, so that AGC measures the real command path rather than a model of it.
 
-### 7.3 Falsifiable predictions
+### 8.3 Falsifiable predictions
 
 The framework makes claims that the testbed can refute, and we state them so that it is falsifiable rather than merely plausible:
 
@@ -471,9 +614,11 @@ The framework makes claims that the testbed can refute, and we state them so tha
 
 ---
 
-## 8. Discussion
+## 9. Discussion
 
-**The defender's asymmetry is physical, and it is under-used.** The dominant theme running through Sections 4 and 5 is that a spacecraft is a hard target for a PNT attacker in ways a car or a phone is not. It moves at 7.5 km/s along a trajectory constrained by celestial mechanics; it observes GNSS from a geometry the attacker cannot easily replicate; it is visible to an attacker only in short, predictable windows; and it carries a dynamics model precise enough to test its own reported motion for feasibility. Terrestrial anti-spoofing research has necessarily concentrated on cryptography and on RF-layer discrimination, because a terrestrial user has no equivalent physical constraint to appeal to. Spacecraft do, and the framework's practical recommendation is to exploit it first, because it is free.
+**The defender's asymmetry is physical, and it is under-used.** The dominant theme running through Sections 4 to 6 is that a spacecraft is a hard target for a PNT attacker in ways a car or a phone is not. It moves at 7.5 km/s along a trajectory constrained by celestial mechanics; it observes GNSS from a geometry the attacker cannot easily replicate; it is visible to an attacker only in short, predictable windows; and it carries a dynamics model precise enough to test its own reported motion for feasibility. Terrestrial anti-spoofing research has necessarily concentrated on cryptography and on RF-layer discrimination, because a terrestrial user has no equivalent physical constraint to appeal to. Spacecraft do, and the framework's practical recommendation is to exploit it first, because it is free.
+
+**Security constraints can come from subsystems that are not security subsystems.** The case study's propulsion finding (Section 6.3) is the clearest instance. Thrust level is selected for delta-v budget, station-keeping cadence and cost; nobody selects it for spoofing resistance. Yet under feasibility gating it sets the ceiling on how far an adversary can move the vehicle's believed position, and it does so across three orders of magnitude. The general lesson is that in cyber-physical systems the security envelope is often defined by physical design decisions taken elsewhere in the programme, and that a requirements method which starts at the mission — rather than at the receiver — is the kind of method that will find them.
 
 **Resilience is cheaper than prevention, and better matched to the sector.** Tier 0 contains no new hardware. This matters because the population of GNSS-dependent LEO spacecraft is dominated by cost-constrained commercial and academic platforms for which controlled-reception-pattern antennas and cryptographic modules are out of reach. A baseline they can actually implement is worth more than a stronger one they will not.
 
@@ -485,31 +630,34 @@ The framework makes claims that the testbed can refute, and we state them so tha
 
 ---
 
-## 9. Limitations
+## 10. Limitations
 
 We state these plainly, because the framework's credibility depends on not overclaiming.
 
-1. **No experimental validation.** GNSS-CRF is an analytical construction. None of the metrics of Section 7 has been measured, and predictions P1–P3 are untested. Section 7.2 is a proposal, not a report of results.
+1. **No experimental validation.** GNSS-CRF is an analytical construction. None of the metrics of Section 8 has been measured, and predictions P1–P3 are untested. Section 8.2 is a proposal, not a report of results.
+3. **The case study is hypothetical and its arithmetic is bounding, not predictive.** TERRA-SENTINEL is fictional and its contract values are illustrative. The ≈1 km spoof bound of Section 6.3 is a best-case figure that assumes a detection threshold set tightly at `a_max`; a real threshold must absorb dynamics-model error, drag and solar-radiation-pressure variability and measurement noise, and a loose margin degrades the bound proportionally. The bound also assumes a single ground site — multi-site or airborne adversaries relax it quadratically in the extended window. The number is an existence proof that a computable bound exists, not a performance claim.
 2. **No flight heritage.** The framework has not been applied to a flown mission, and the operational cost of trust-state false alarms in a real programme is unknown.
-3. **Detection performance is asserted, not characterised.** The claim that layer D4 detects self-consistent spoofs rests on physical reasoning. The achievable `P_d`/`P_fa` operating points, and their dependence on attack walk-off rate, orbital regime, filter tuning and dynamics-model fidelity, are precisely what has not been quantified. This is the framework's most significant open item.
-4. **Contract parameters are mission-specific.** The framework tells an analyst what to compute, not what the answer is. Two teams applying it to similar missions may derive different `η` values, and the framework provides no calibration procedure to reconcile them.
-5. **The threat model excludes the insider and the compromised ground segment.** An adversary with command authority is out of scope by construction (Section 3.1), though MCB-12's reliance on authenticated ground uploads means that a compromised ground segment degrades the recovery path — a coupling the framework acknowledges but does not solve.
-6. **The literature review is structural rather than exhaustive.** We characterise the Humphreys and Falco lines of work at the level of their positions and results. **Every citation in Section 11 should be verified against the original source before this paper is submitted anywhere**, and specific technical figures quoted from those works should be checked against the published values rather than taken from this summary.
-7. **SPARTA mapping is at tactic granularity.** Technique-level mapping requires a pinned matrix version and has not been performed.
+4. **Detection performance is asserted, not characterised.** The claim that layer D4 detects self-consistent spoofs rests on physical reasoning. The achievable `P_d`/`P_fa` operating points, and their dependence on attack walk-off rate, orbital regime, filter tuning and dynamics-model fidelity, are precisely what has not been quantified. This is the framework's most significant open item.
+5. **Contract parameters are mission-specific.** The framework tells an analyst what to compute, not what the answer is. Two teams applying it to similar missions may derive different `η` values, and the framework provides no calibration procedure to reconcile them.
+6. **The threat model excludes the insider and the compromised ground segment.** An adversary with command authority is out of scope by construction (Section 3.1), though MCB-12's reliance on authenticated ground uploads means that a compromised ground segment degrades the recovery path — a coupling the framework acknowledges but does not solve.
+7. **The literature review is structural rather than exhaustive.** We characterise the Humphreys and Falco lines of work at the level of their positions and results. **Every citation in Section 12 should be verified against the original source before this paper is submitted anywhere**, and specific technical figures quoted from those works should be checked against the published values rather than taken from this summary.
+8. **SPARTA mapping is at tactic granularity.** Technique-level mapping requires a pinned matrix version and has not been performed.
 
 ---
 
-## 10. Conclusion and Future Work
+## 11. Conclusion and Future Work
 
-We asked what minimum set of cybersecurity controls a GNSS-dependent LEO satellite needs in order to keep operating through spoofing and jamming. The answer we derive is the sixteen-control baseline of Table 7, of which twelve are mandatory, all twelve are implementable in software, and the most important of them is not a detector at all but an authority gate: **no irreversible action under untrusted PNT**.
+We asked what minimum set of cybersecurity controls a GNSS-dependent LEO satellite needs in order to keep operating through spoofing and jamming. The answer we derive is the sixteen-control baseline of Table 11, of which twelve are mandatory, all twelve are implementable in software, and the most important of them is not a detector at all but an authority gate: **no irreversible action under untrusted PNT**.
 
 The method that produces that answer is the contribution we consider more durable than the answer itself. The seven-stage chain — Mission Objective → GNSS Dependency → Threat → Effect → Detection → Mitigation → Cyber Requirement — with the PNT Service Contract at stage 2 and the adequacy conditions at stage 7, converts PNT attacks into verifiable spacecraft requirements through steps that a reviewer can audit and a second analyst can reproduce. That is a different kind of artefact from a list of good practices, and it is the artefact that a spacecraft programme needs before design freeze, when security properties can still be added.
 
-Three findings surprised us in the course of the construction and are worth carrying forward. Timing is the deepest and least documented GNSS dependency in a spacecraft, and its corruption has the widest blast radius. Irreversibility dominates likelihood in space systems, which means conventional risk scoring systematically under-protects them. And LEO orbital dynamics give the defender a detection primitive that costs nothing and that terrestrial users do not have — the strongest practical result in the paper, and the one most in need of experimental confirmation.
+The case study of Section 6 supplied the framework's most concrete result, and it was not an input to it: under orbital-feasibility gating a single ground-based spoofer is bounded to roughly one kilometre of induced error against a 180 kg, 1 N spacecraft, and that bound falls to about a metre for a low-thrust vehicle and to centimetres for a non-manoeuvring one. Propulsion architecture, selected for reasons that have nothing to do with security, therefore sets the PNT deception envelope across three orders of magnitude. The same case study showed why detection is nonetheless insufficient: an adversary confined to a kilometre of error will stop attacking the state and start attacking the decision, timing the spoof to coincide with a planned collision-avoidance burn — which leaves the authority gate as the only control standing between a bounded error and an unbounded consequence.
+
+Three further findings surprised us in the course of the construction and are worth carrying forward. Timing is the deepest and least documented GNSS dependency in a spacecraft, and its corruption has the widest blast radius. Irreversibility dominates likelihood in space systems, which means conventional risk scoring systematically under-protects them. And LEO orbital dynamics give the defender a detection primitive that costs nothing and that terrestrial users do not have — the strongest practical result in the paper, and the one most in need of experimental confirmation.
 
 **Future work**, in priority order:
 
-1. **Build the testbed of Section 7.2 and test P1.** Characterising the `P_d`/`P_fa` operating curve of orbital-dynamics plausibility checking against walk-off rate is the single highest-value next experiment, because the framework's most distinctive claim rests on it.
+1. **Build the testbed of Section 8.2 and test P1.** Characterising the `P_d`/`P_fa` operating curve of orbital-dynamics plausibility checking against walk-off rate is the single highest-value next experiment, because the framework's most distinctive claim rests on it.
 2. **Quantify estimator poisoning (P2)** across filter architectures, and derive checkpointing and rollback policies from the measured recovery dynamics.
 3. **Measure the availability cost of authority gating (P3)**, since Rule 2's operational acceptability depends entirely on its false-alarm burden.
 4. **Complete the technique-level SPARTA mapping** against a pinned matrix version, and propose PNT-specific countermeasure entries where the matrix is thin.
@@ -518,7 +666,7 @@ Three findings surprised us in the course of the construction and are worth carr
 
 ---
 
-## 11. References
+## 12. References
 
 > **Verification notice.** The following list identifies the bodies of work on which this paper builds. Bibliographic details — years, venues, volume and page numbers — **must be verified against the original sources before submission**, and quantitative figures attributed to these works should be checked against their published values. See Limitation 6.
 
@@ -591,4 +739,4 @@ For each mission objective:
 
 ---
 
-*Draft for discussion. See Section 9 for limitations and Section 11 for the citation verification notice.*
+*Draft for discussion. See Section 10 for limitations and Section 12 for the citation verification notice.*
