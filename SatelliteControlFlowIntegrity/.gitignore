@@ -1,0 +1,9 @@
+# Build products and vendored dependencies
+prototype/firmware/build/
+prototype/firmware/third_party/
+prototype/out/
+__pycache__/
+*.pyc
+
+# Execution traces: hundreds of MB per second of emulated flight
+*.trace
