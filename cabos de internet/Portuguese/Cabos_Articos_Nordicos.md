@@ -2,13 +2,17 @@
 
 ## Resumo
 
-Os cabos submarinos de fibra óptica transportam a quase totalidade do tráfego de dados intercontinental — a cifra de 99%, amplamente repetida, tem origem documental frágil e é examinada criticamente na Seção 1 —, o que torna essa camada física um ativo de infraestrutura crítica tão essencial quanto as redes de energia ou de transporte. Na região nórdica e ártica, essa infraestrutura opera sob uma condição singular: o mesmo aquecimento regional que viabiliza novas rotas transárticas — reduzindo a cobertura de gelo marinho e abrindo janelas de lançamento antes impraticáveis — é o que degrada as condições de instalação, ancoragem e reparo desses sistemas, por meio da perda de permafrost, da erosão costeira e da intensificação do tráfego marítimo. Este artigo analisa essa tensão. Primeiro, mapeia o cenário de cabos nórdicos e árticos, incluindo os projetos transárticos em desenvolvimento. Em seguida, examina o clima ártico como vetor de risco físico e o articula com o modelo de ameaça híbrida evidenciado pelos incidentes de Svalbard (2022) e do mar Báltico (2023–2024). Por fim, discute o arcabouço regulatório aplicável (NIS2, Diretiva CER, UNCLOS) e propõe eixos de resiliência: diversidade de rotas e de pontos de aterragem, monitoramento acústico distribuído, capacidade regional de reparo com classe de gelo e planejamento de infraestrutura informado por projeções climáticas. Argumenta-se que risco climático e risco adversarial não são agendas separadas na região, mas manifestações de um mesmo problema de resiliência.
+Os cabos submarinos de fibra óptica transportam a quase totalidade do tráfego de dados intercontinental — a cifra de 99%, amplamente repetida, tem origem documental frágil e é examinada criticamente na Seção 1 —, o que torna essa camada física um ativo de infraestrutura crítica tão essencial quanto as redes de energia ou de transporte. Na região nórdica e ártica, essa infraestrutura opera sob uma condição singular: o mesmo aquecimento regional que viabiliza novas rotas transárticas, ao reduzir a cobertura de gelo marinho e alongar as janelas de lançamento, é o que degrada as condições de instalação, ancoragem e reparo desses sistemas, por meio da perda de permafrost, da erosão costeira e da intensificação do tráfego marítimo.
+
+Este artigo analisa essa tensão em quatro movimentos. Mapeia o cenário de cabos nórdicos e árticos, incluindo os projetos transárticos em desenvolvimento. Examina o clima ártico como vetor de risco físico, decomposto em cinco mecanismos, dos quais a restrição sazonal da capacidade de reparo é o mais determinante. Integra esses mecanismos a um modelo de ameaça único, que trata origem natural, acidental e adversarial como incidentes sobre os mesmos pontos de falha — modelo cuja premissa central, a indistinguibilidade entre acidente e agressão no plano físico, foi confirmada por via judicial no caso *Eagle S*, em que o Tribunal de Apelação de Helsinque firmou, em agosto de 2026, que a distinção repousa não no mecanismo, mas na avaliação da conduta subsequente. Por fim, discute o arcabouço regulatório aplicável (NIS2, Diretiva CER, UNCLOS) e propõe eixos de resiliência hierarquizados por vetor de risco atendido e por custo.
+
+Argumenta-se que risco climático e risco adversarial não constituem agendas separadas na região, mas manifestações de um mesmo problema de resiliência, e que a lentidão da dissuasão por via jurídica desloca o peso da resposta para a detecção precoce e para o projeto resiliente.
 
 ---
 
 ## Palavras-chave
 
-Cabos Submarinos, Infraestrutura Ártica, Proteção de Infraestrutura Crítica, Resiliência Climática, Região Nórdica, Ameaças Híbridas, Permafrost, Segurança Cibernética
+Cabos Submarinos, Infraestrutura Ártica, Proteção de Infraestrutura Crítica, Resiliência Climática, Região Nórdica, Ameaças Híbridas, Permafrost, Direito do Mar, UNCLOS, Segurança Cibernética
 
 ---
 
@@ -16,7 +20,7 @@ Cabos Submarinos, Infraestrutura Ártica, Proteção de Infraestrutura Crítica,
 
 A percepção pública da internet é dominada por metáforas imateriais — nuvem, éter, sem fio. A realidade operacional é oposta: a conectividade intercontinental depende de um conjunto finito de cabos de fibra óptica assentados no leito oceânico, cada um com poucos centímetros de diâmetro, cuja destruição física interrompe serviços digitais em escala nacional.
 
-Convém tratar com cuidado a cifra mais repetida nesse debate. A afirmação de que "99% do tráfego intercontinental trafega por cabos submarinos" circula amplamente na imprensa e em documentos de política pública, quase sempre sem fonte. A própria TeleGeography, à qual a cifra é com frequência atribuída, registra que não dispõe de medição direta do tráfego global e que o dado rastreável é outro: estatísticas da Comissão Federal de Comunicações dos Estados Unidos indicam que os satélites respondem por cerca de 0,37% da capacidade internacional norte-americana [7, 8]. A conclusão qualitativa permanece robusta — a dependência da camada submarina é quase total e os enlaces por satélite funcionam como redundância de capacidade limitada, não como substituto —, mas a precisão numérica frequentemente atribuída a ela não se sustenta. Este artigo adota a formulação qualitativa.
+Convém tratar com cuidado a cifra mais repetida nesse debate. A afirmação de que "99% do tráfego intercontinental trafega por cabos submarinos" circula amplamente na imprensa e em documentos de política pública, quase sempre sem fonte. A própria TeleGeography, à qual a cifra é com frequência atribuída, registra que não dispõe de medição direta do tráfego global e que o dado rastreável é outro: estatísticas da Comissão Federal de Comunicações dos Estados Unidos indicam que os satélites respondem por cerca de 0,37% da capacidade internacional norte-americana [8, 9]. A conclusão qualitativa permanece robusta — a dependência da camada submarina é quase total e os enlaces por satélite funcionam como redundância de capacidade limitada, não como substituto —, mas a precisão numérica frequentemente atribuída a ela não se sustenta. Este artigo adota a formulação qualitativa.
 
 A região nórdica concentra três características que tornam esse tema particularmente relevante. Primeiro, há uma dependência estrutural elevada: Islândia, Ilhas Faroe, Groenlândia e Svalbard são territórios cuja conectividade total repousa sobre um número muito pequeno de cabos — em alguns casos, dois. Segundo, a região abriga uma densidade incomum de infraestrutura digital sensível, incluindo data centers de grande porte atraídos pelo clima frio e pela energia renovável barata, além de estações terrestres de satélite de importância científica e militar. Terceiro, o recuo do gelo marinho ártico transformou a região em objeto de projetos de rotas transárticas — notadamente Far North Fiber e Polar Connect — que prometem reduzir substancialmente a latência entre Ásia e Europa em relação às rotas via Suez.
 
@@ -48,7 +52,7 @@ A infraestrutura de cabos da região pode ser organizada em quatro camadas.
 
 **Enlaces intranórdicos e bálticos.** O mar Báltico é atravessado por uma malha densa de cabos de telecomunicações e de energia que interconecta Finlândia, Suécia, Estônia, Lituânia, Polônia e Alemanha. Entre eles, o C-Lion1 (Helsinque–Rostock) e o BCS East-West Interlink (Lituânia–Suécia) ganharam notoriedade pelos danos sofridos em 2024. A característica geográfica determinante aqui é a profundidade: o Báltico é um mar raso, o que coloca os cabos ao alcance de âncoras de navios comerciais em grande parte de seu traçado.
 
-**Rotas transárticas em desenvolvimento.** O projeto Far North Fiber propõe conectar Japão e Europa atravessando a Passagem Noroeste, com aterragens previstas no Alasca, no Canadá ártico, na Groenlândia, na Islândia, na Noruega, na Finlândia e na Irlanda. O Polar Connect, conduzido no âmbito da NORDUnet e de redes acadêmicas nórdicas, estuda uma rota a partir da Noruega, via Svalbard, através do Oceano Ártico [9]. Ambos derivam sua viabilidade das condições de gelo alteradas pelo aquecimento regional.
+**Rotas transárticas em desenvolvimento.** O projeto Far North Fiber, empreendimento conjunto entre a finlandesa Cinia, a norte-americana Far North Digital e a japonesa Arteria Networks, propõe conectar Japão e Europa atravessando a Passagem Noroeste ao longo de aproximadamente 14 mil quilômetros, com aterragens previstas no Alasca, no Canadá ártico, na Groenlândia, na Islândia, na Noruega, na Finlândia e na Irlanda. O Polar Connect, conduzido no âmbito da NORDUnet e de redes acadêmicas nórdicas, estuda uma rota a partir da Noruega, via Svalbard, através do Oceano Ártico [10]. Ambos derivam sua viabilidade das condições de gelo alteradas pelo aquecimento regional.
 
 **Tabela 1 — Sistemas de referência na região nórdica e ártica**
 
@@ -61,8 +65,8 @@ A infraestrutura de cabos da região pode ser organizada em quatro camadas.
 | Svalbard Undersea Cable System | Longyearbyen – Noruega continental | 2004 | Dois pares de fibras; sustenta a estação SvalSat |
 | C-Lion1 | Helsinque – Rostock | 2016 | Danificado em novembro de 2024 |
 | BCS East-West Interlink | Lituânia – Suécia | 2009 | Danificado em novembro de 2024 |
-| Far North Fiber | Japão – Europa, via Passagem Noroeste | Em projeto | Viabilidade decorrente do recuo do gelo |
-| Polar Connect | Europa – Ásia, via Ártico central | Em estudo | Conduzido por redes acadêmicas nórdicas |
+| Far North Fiber | Japão – Europa, via Passagem Noroeste (~14.000 km) | Em implantação | Consórcio Cinia / Far North Digital / Arteria; viabilidade decorrente do recuo do gelo |
+| Polar Connect | Noruega – Svalbard – Ártico – Ásia / América do Norte | Em estudo | Conduzido por redes acadêmicas nórdicas, com cofinanciamento europeu |
 
 ### 2.2 Concentração e pontos de estrangulamento
 
@@ -78,9 +82,11 @@ O Ártico aquece a uma taxa várias vezes superior à média global, fenômeno d
 
 ### 3.1 Recuo do gelo marinho: habilitação e exposição
 
-A extensão mínima anual do gelo marinho ártico, medida em setembro, apresenta tendência de declínio consistente ao longo das últimas quatro décadas, conforme as séries do National Snow and Ice Data Center [3] e as sínteses do Arctic Monitoring and Assessment Programme [4]. Para a indústria de cabos, o efeito primário é habilitador: janelas de navegação mais longas permitem operações de lançamento em rotas antes inacessíveis, o que é precondição para projetos como o Far North Fiber.
+A extensão mínima anual do gelo marinho ártico, medida em setembro, apresenta tendência de declínio consistente ao longo das últimas quatro décadas, conforme as séries do National Snow and Ice Data Center [4] e as sínteses do Arctic Monitoring and Assessment Programme [5]. Para a indústria de cabos, o efeito primário é habilitador: janelas de navegação mais longas permitem operações de lançamento em rotas antes inacessíveis, o que é precondição para projetos como o Far North Fiber.
 
-O efeito secundário, porém, é de exposição. Águas navegáveis atraem tráfego marítimo comercial, pesqueiro e turístico. A causa dominante de falhas em cabos submarinos em escala global não é sabotagem nem desastre natural, mas atividade humana rotineira — âncoras arrastadas e redes de pesca de fundo. Dados setoriais compilados pelo International Cable Protection Committee situam essa categoria entre 70% e 80% do total de falhas, em um universo da ordem de duzentas falhas anuais no conjunto dos sistemas globais [5, 6]. Um Ártico navegável é, por construção, um Ártico onde essa causa dominante passa a operar. A redução do gelo não elimina o risco de gelo: icebergs à deriva e o sulcamento do leito marinho por quilhas de gelo (*ice keel scouring*) continuam representando ameaças em águas rasas costeiras, e a mobilidade aumentada do gelo pode tornar esses eventos menos previsíveis.
+O efeito secundário, porém, é de exposição. Águas navegáveis atraem tráfego marítimo comercial, pesqueiro e turístico — e a causa dominante de falhas em cabos submarinos em escala global não é sabotagem nem desastre natural, mas exatamente essa atividade humana rotineira. Dados setoriais compilados pelo International Cable Protection Committee situam âncoras arrastadas e redes de pesca de fundo entre 70% e 80% do total de falhas, em um universo da ordem de duzentas falhas anuais no conjunto dos sistemas globais [6, 7]. Segue-se que um Ártico navegável é, por construção, um Ártico onde essa causa dominante passa a operar.
+
+Cabe registrar que a redução do gelo não elimina o risco associado ao gelo. Icebergs à deriva e o sulcamento do leito marinho por quilhas de gelo (*ice keel scouring*) continuam representando ameaças em águas rasas costeiras, e a mobilidade aumentada do gelo pode tornar esses eventos menos previsíveis.
 
 ### 3.2 Degradação do permafrost sob instalações terrestres
 
@@ -120,13 +126,13 @@ A classificação de cabos submarinos como infraestrutura crítica decorre menos
 
 ### 4.1 Incidentes de referência
 
-**Svalbard, janeiro de 2022.** Um dos dois cabos do sistema de Svalbard sofreu dano em trecho de águas profundas. O enlace remanescente manteve a conectividade do arquipélago, o que demonstrou o valor da redundância existente — e, simultaneamente, o fato de que o sistema operou, durante o período de reparo, sem qualquer margem adicional. A investigação conduzida pelas autoridades norueguesas apontou atividade humana como causa provável, sem que se chegasse a uma atribuição conclusiva. A ausência de atribuição é, em si, um achado analítico relevante.
+**Svalbard, janeiro de 2022.** Em 7 de janeiro de 2022, um dos dois cabos do sistema de Svalbard — enlace de cerca de 1.300 km operado pela Space Norway — perdeu comunicação após dano em trecho de águas profundas. O enlace remanescente manteve a conectividade do arquipélago, o que demonstrou o valor da redundância existente e, simultaneamente, expôs o fato de que o sistema operou durante todo o período de reparo sem qualquer margem adicional. As marcas no cabo recuperado eram compatíveis com raspagem por objeto rebocado ao longo do leito, tipicamente uma porta de arrasto de rede de pesca. A polícia norueguesa considerou provável a origem em atividade humana, não estabeleceu intencionalidade e encerrou a investigação por insuficiência de provas, sem indiciamento [14]. O episódio é objeto de análise detalhada de Schia, Gjesvik e Rødningen [3], que examinam a cadeia de consequências e a gestão da crise. A ausência de atribuição conclusiva é, em si, um achado analiticamente relevante, retomado na Seção 5.
 
 **Balticconnector e cabos associados, outubro de 2023.** O gasoduto Balticconnector, entre Finlândia e Estônia, e cabos de telecomunicações próximos sofreram danos simultâneos. A investigação finlandesa concentrou-se no arrasto de âncora por um navio comercial.
 
-**Mar Báltico, novembro de 2024.** Os cabos BCS East-West Interlink (Lituânia–Suécia) e C-Lion1 (Finlândia–Alemanha) foram danificados em intervalo de aproximadamente 24 horas, em um padrão consistente com arrasto de âncora ao longo de uma mesma rota de navegação. A operadora Cinia registrou a falha no C-Lion1 às 4h04 (horário da Europa Oriental) de 18 de novembro de 2024, atribuiu-a a força física externa e encaminhou pedido de investigação ao Serviço Nacional de Investigação finlandês no dia seguinte [14]; o serviço foi restabelecido em 28 de novembro, após dez dias de indisponibilidade e do deslocamento de um navio-cabo desde Calais [15]. O intervalo é ilustrativo do argumento da Seção 3.5, ainda que se trate de um mar de acesso comparativamente fácil.
+**Mar Báltico, novembro de 2024.** Os cabos BCS East-West Interlink (Lituânia–Suécia) e C-Lion1 (Finlândia–Alemanha) foram danificados em intervalo de aproximadamente 24 horas, em um padrão consistente com arrasto de âncora ao longo de uma mesma rota de navegação. A operadora Cinia registrou a falha no C-Lion1 às 4h04 (horário da Europa Oriental) de 18 de novembro de 2024, atribuiu-a a força física externa e encaminhou pedido de investigação ao Serviço Nacional de Investigação finlandês no dia seguinte [16]; o serviço foi restabelecido em 28 de novembro, após dez dias de indisponibilidade e do deslocamento de um navio-cabo desde Calais [17]. O intervalo é ilustrativo do argumento da Seção 3.5, ainda que se trate de um mar de acesso comparativamente fácil.
 
-**Estlink 2 e cabos adjacentes, dezembro de 2024.** Em 25 de dezembro de 2024, o cabo de energia Estlink 2, entre Finlândia e Estônia, e quatro cabos de telecomunicações foram danificados. As autoridades finlandesas conduziram o navio-tanque *Eagle S*, registrado nas Ilhas Cook, às águas territoriais finlandesas e abriram investigação; segundo o Serviço Nacional de Investigação, a embarcação arrastou sua âncora pelo leito por distância da ordem de noventa a cem quilômetros [13]. O episódio marcou uma inflexão na postura de aplicação da lei na região e gerou o desdobramento judicial tratado na Seção 6.2, cuja relevância excede a do incidente isolado.
+**Estlink 2 e cabos adjacentes, dezembro de 2024.** Em 25 de dezembro de 2024, o cabo de energia Estlink 2, entre Finlândia e Estônia, e quatro cabos de telecomunicações foram danificados. As autoridades finlandesas conduziram o navio-tanque *Eagle S*, registrado nas Ilhas Cook, às águas territoriais finlandesas e abriram investigação; segundo o Serviço Nacional de Investigação, a embarcação arrastou sua âncora pelo leito por distância da ordem de noventa a cem quilômetros [15]. O episódio marcou uma inflexão na postura de aplicação da lei na região e gerou o desdobramento judicial tratado na Seção 6.2, cuja relevância excede a do incidente isolado.
 
 O padrão comum a esses casos é significativo para a análise de risco: o mecanismo físico do dano — uma âncora arrastada no leito — é idêntico ao de um acidente marítimo corriqueiro. Essa equivalência é precisamente o que torna a atribuição difícil e o que, na literatura de segurança, caracteriza a ação abaixo do limiar do conflito armado.
 
@@ -144,7 +150,7 @@ A prática convencional separa a análise de risco natural da análise de risco 
 | Natural — gelo | Sulcamento por quilha de gelo, iceberg à deriva | Baixa a moderada, sazonal | Longo (restrição de acesso) | Não aplicável |
 | Acidental — humana | Âncora, rede de pesca de fundo | Alta (causa dominante global) | Médio, restrito por janela | Geralmente possível |
 | Adversarial — híbrida | Arrasto deliberado de âncora, intervenção subaquática | Baixa, concentrada geograficamente | Médio a longo | Difícil e frequentemente inconclusiva |
-| Adversarial — cibernética | Comprometimento de sistemas de gerenciamento da rede e da estação de aterragem | Não pública | Variável | Difícil |
+| Adversarial — cibernética | Comprometimento de sistemas de gerenciamento da rede e da estação de aterragem | Sem dados públicos consolidados | Variável | Difícil |
 
 Três observações decorrem dessa estrutura.
 
@@ -160,23 +166,23 @@ Terceiro, **a dimensão cibernética não deve ser omitida.** A discussão públ
 
 ### 6.1 Nível europeu
 
-A Diretiva NIS2 (Diretiva (UE) 2022/2555) [10] amplia o escopo de entidades sujeitas a requisitos de gestão de risco cibernético e de notificação de incidentes, incluindo explicitamente a infraestrutura digital. A Diretiva CER (Diretiva (UE) 2022/2557) [11], sobre a resiliência de entidades críticas, trata da dimensão física e exige que os Estados-membros identifiquem entidades críticas e conduzam avaliações de risco que contemplem, entre outros fatores, riscos naturais e mudanças climáticas. A leitura conjunta das duas diretivas é o instrumento mais direto para tratar a convergência analisada neste artigo.
+A Diretiva NIS2 (Diretiva (UE) 2022/2555) [11] amplia o escopo de entidades sujeitas a requisitos de gestão de risco cibernético e de notificação de incidentes, incluindo explicitamente a infraestrutura digital. A Diretiva CER (Diretiva (UE) 2022/2557) [12], sobre a resiliência de entidades críticas, trata da dimensão física e exige que os Estados-membros identifiquem entidades críticas e conduzam avaliações de risco que contemplem, entre outros fatores, riscos naturais e mudanças climáticas. A leitura conjunta das duas diretivas é o instrumento mais direto para tratar a convergência analisada neste artigo.
 
 A aplicabilidade na região não é uniforme. Dinamarca, Suécia e Finlândia são Estados-membros da União Europeia. Noruega e Islândia integram o Espaço Econômico Europeu, com incorporação por mecanismo próprio e cronograma distinto. A Groenlândia e as Ilhas Faroe possuem estatutos específicos. O resultado é um mosaico regulatório sobre uma infraestrutura que, por natureza, é transfronteiriça.
 
 ### 6.2 Direito internacional do mar
 
-A Convenção das Nações Unidas sobre o Direito do Mar (UNCLOS) [12] trata da proteção de cabos submarinos em seus artigos 113 a 115, obrigando os Estados a tipificar como infração o dano doloso ou por negligência culposa a cabo submarino causado por navio de sua bandeira. O regime apresenta três fragilidades operacionais reconhecidas na literatura: depende da jurisdição do Estado de bandeira, cuja cooperação é incerta; foi concebido para o acidente e não para a ação estatal deliberada; e oferece instrumentos limitados de interdição em alto-mar.
+A Convenção das Nações Unidas sobre o Direito do Mar (UNCLOS) [13] trata da proteção de cabos submarinos em seus artigos 113 a 115, obrigando os Estados a tipificar como infração o dano doloso ou por negligência culposa a cabo submarino causado por navio de sua bandeira. O regime apresenta três fragilidades operacionais reconhecidas na literatura: depende da jurisdição do Estado de bandeira, cuja cooperação é incerta; foi concebido para o acidente e não para a ação estatal deliberada; e oferece instrumentos limitados de interdição em alto-mar.
 
 O caso *Eagle S* converteu essa discussão doutrinária em jurisprudência. Em outubro de 2025, o Tribunal Distrital de Helsinque extinguiu o processo criminal contra o comandante e dois oficiais da embarcação por entender que a Finlândia carecia de jurisdição: os atos imputados teriam ocorrido na zona econômica exclusiva finlandesa, fora, portanto, do mar territorial, e a lei penal finlandesa não lhes alcançaria. A decisão repercutiu como demonstração concreta da lacuna apontada pela literatura — navios sob bandeira de conveniência poderiam danificar infraestrutura submarina em águas não territoriais sem consequência penal efetiva.
 
-Em 27 de agosto de 2026, o Tribunal de Apelação de Helsinque reformou, por unanimidade, aquela decisão, reconhecendo a jurisdição finlandesa e determinando a reabertura do processo em primeira instância [16, 17]. O fundamento é analiticamente relevante para este artigo: embora o tribunal tenha admitido que o lançamento inicial da âncora pudesse ser tratado como acidental, entendeu que o que se seguiu — o arrasto prolongado pelo leito — não se enquadra na categoria de acidente marítimo para os fins da UNCLOS. A decisão ainda não é definitiva e admite recurso à Suprema Corte, cujo prazo se encerra em outubro de 2026.
+Em 27 de agosto de 2026, o Tribunal de Apelação de Helsinque reformou, por unanimidade, aquela decisão, reconhecendo a jurisdição finlandesa e determinando a reabertura do processo em primeira instância [18, 19]. O fundamento é analiticamente relevante para este artigo: embora o tribunal tenha admitido que o lançamento inicial da âncora pudesse ser tratado como acidental, entendeu que o que se seguiu — o arrasto prolongado pelo leito — não se enquadra na categoria de acidente marítimo para os fins da UNCLOS. A decisão ainda não é definitiva e admite recurso à Suprema Corte, cujo prazo se encerra em outubro de 2026.
 
 O episódio confirma a tese central da Seção 5 por via judicial: a linha que separa acidente de agressão não é dada pelo mecanismo físico, que é idêntico nos dois casos, mas por uma avaliação da conduta subsequente. Enquanto essa avaliação depender de litígio prolongado e de resultado incerto, a dissuasão por consequência jurídica permanece fraca — o que reforça o peso relativo das medidas de detecção e de projeto resiliente discutidas na Seção 7.
 
 ### 6.3 Dimensão de defesa e cooperação regional
 
-A resposta institucional recente inclui iniciativas de vigilância marítima dedicadas à proteção de infraestrutura submarina, entre elas a operação Nordic Warden, conduzida no âmbito da Joint Expeditionary Force, e a atividade Baltic Sentry, iniciada pela OTAN em 14 de janeiro de 2025 após a série de incidentes, conduzida pelo Comando de Força Conjunta Aliada de Brunssum em articulação com o Comando Marítimo Aliado [18]. A adesão de Finlândia e Suécia à OTAN alterou de forma substantiva a arquitetura de segurança regional no período analisado.
+A resposta institucional recente inclui iniciativas de vigilância marítima dedicadas à proteção de infraestrutura submarina, entre elas a operação Nordic Warden, conduzida no âmbito da Joint Expeditionary Force, e a atividade Baltic Sentry, iniciada pela OTAN em 14 de janeiro de 2025 após a série de incidentes, conduzida pelo Comando de Força Conjunta Aliada de Brunssum em articulação com o Comando Marítimo Aliado [20]. A adesão de Finlândia e Suécia à OTAN alterou de forma substantiva a arquitetura de segurança regional no período analisado.
 
 ---
 
@@ -249,7 +255,13 @@ Este trabalho constitui uma revisão documental e analítica, baseada em literat
 
 A infraestrutura de cabos submarinos do Ártico nórdico ocupa uma posição incomum na análise de infraestrutura crítica: é o ponto em que risco climático, risco acidental e ameaça geopolítica incidem sobre o mesmo ativo físico, com os mesmos modos de falha e o mesmo conjunto restrito de opções de reparo. A resposta adequada não é conduzir três análises de risco paralelas, mas uma única análise de resiliência que reconheça a interação entre esses vetores.
 
-As prioridades que emergem da análise são quatro: diversidade estrutural avaliada por modo de falha comum e não por contagem de cabos; detecção precoce por sensoriamento na própria fibra, integrada a dados de tráfego marítimo; capacidade regional de reparo com classe de gelo, por ser o tempo de indisponibilidade a variável que converte falha em crise; e projeto de infraestrutura que adote projeções climáticas como parâmetro de entrada, dada a incompatibilidade entre uma vida útil de 25 anos e um ambiente não estacionário.
+Retomando as perguntas formuladas na Seção 1:
+
+**Quanto ao perfil de risco físico (pergunta 1),** o aquecimento regional não desloca esse perfil em uma única direção. Ele o reconfigura: habilita rotas ao recuar o gelo, e simultaneamente degrada a fundação das estações de aterragem pelo degelo do permafrost, expõe trechos costeiros pela erosão, eleva a probabilidade de eventos de instabilidade no leito e amplia a exposição a âncoras e artes de pesca ao tornar o mar navegável. O mecanismo de maior consequência prática, contudo, não é o dano em si, mas a restrição sazonal da capacidade de reparo, que alonga estruturalmente a janela de indisponibilidade.
+
+**Quanto à interação entre os vetores (pergunta 2),** não se sustenta relação causal entre mudança climática e ação adversarial. Sustenta-se algo mais específico: ao elevar o volume de tráfego marítimo legítimo, o degelo aumenta a taxa de incidentes acidentais genuínos e, com ela, o ruído de fundo contra o qual um evento deliberado precisaria ser distinguido. Em um domínio onde o mecanismo físico do acidente e o da agressão são idênticos, elevar esse ruído equivale a degradar a capacidade de atribuição. O caso *Eagle S* deu a essa proposição confirmação judicial e mediu seu custo: quase dois anos de litígio apenas para firmar a competência do foro.
+
+**Quanto às estratégias aplicáveis (pergunta 3),** quatro prioridades emergem, hierarquizadas na Tabela 3. Diversidade estrutural avaliada por modo de falha comum, e não por contagem de cabos. Detecção precoce por sensoriamento na própria fibra, integrada a dados de tráfego marítimo — a medida de melhor relação entre custo e cobertura de vetores. Capacidade regional de reparo com classe de gelo, a mais onerosa e a única que reduz diretamente o tempo de indisponibilidade. E projeto de infraestrutura que adote projeções climáticas como parâmetro de entrada, dada a incompatibilidade entre uma vida útil de 25 anos e um ambiente não estacionário.
 
 A camada física da internet foi, por muito tempo, tratada como um problema resolvido de engenharia. No Ártico nórdico, ela voltou a ser uma questão aberta de política pública, de direito internacional e de segurança.
 
@@ -257,7 +269,7 @@ A camada física da internet foi, por muito tempo, tratada como um problema reso
 
 ## Referências
 
-Referências formatadas segundo a ABNT NBR 6023. Todas as fontes em linha foram verificadas em **19 de setembro de 2026**, data de acesso indicada em cada entrada.
+Vinte referências formatadas segundo a ABNT NBR 6023. Todas as fontes em linha foram verificadas em **19 de setembro de 2026**, data de acesso indicada em cada entrada. As entradas [14], [18] e [19] são fontes jornalísticas ou de blog acadêmico, empregadas nas condições descritas na nota ao final.
 
 ### Literatura acadêmica
 
@@ -267,49 +279,55 @@ Referências formatadas segundo a ABNT NBR 6023. Todas as fontes em linha foram 
 
 ### Dados climáticos e ambientais
 
-[3] FETTERER, Florence; KNOWLES, Kenneth; MEIER, Walter N.; SAVOIE, Matthew; WINDNAGEL, Ann K.; STAFFORD, Timothy. **Sea Ice Index**, Version 4. Boulder, Colorado: National Snow and Ice Data Center, 2025. Conjunto de dados G02135. DOI: 10.7265/a98x-0f50. Disponível em: https://nsidc.org/data/g02135/versions/4. Acesso em: 19 set. 2026.
+[3] SCHIA, Niels Nagelhus; GJESVIK, Lars; RØDNINGEN, Ida. **The subsea cable cut at Svalbard January 2022: What happened, what were the consequences, and how were they managed?** NUPI Policy Brief 1/2023. Oslo: Norwegian Institute of International Affairs, 2023. Disponível em: https://www.nupi.no/content/pdf_preview/26372/file/NUPI_Policy_Brief_1_23_Schia_Gjesvik_R%C3%B8dningen-FERDIG.pdf. Acesso em: 19 set. 2026.
 
-[4] ARCTIC MONITORING AND ASSESSMENT PROGRAMME. **Arctic Climate Change Update 2021: Key Trends and Impacts**. Tromsø: AMAP, 2021. viii + 148 p. Disponível em: https://www.amap.no/documents/doc/amap-arctic-climate-change-update-2021-key-trends-and-impacts/3594. Acesso em: 19 set. 2026.
+### Dados climáticos e ambientais
+
+[4] FETTERER, Florence; KNOWLES, Kenneth; MEIER, Walter N.; SAVOIE, Matthew; WINDNAGEL, Ann K.; STAFFORD, Timothy. **Sea Ice Index**, Version 4. Boulder, Colorado: National Snow and Ice Data Center, 2025. Conjunto de dados G02135. DOI: 10.7265/a98x-0f50. Disponível em: https://nsidc.org/data/g02135/versions/4. Acesso em: 19 set. 2026.
+
+[5] ARCTIC MONITORING AND ASSESSMENT PROGRAMME. **Arctic Climate Change Update 2021: Key Trends and Impacts**. Tromsø: AMAP, 2021. viii + 148 p. Disponível em: https://www.amap.no/documents/doc/amap-arctic-climate-change-update-2021-key-trends-and-impacts/3594. Acesso em: 19 set. 2026.
 
 ### Infraestrutura de cabos submarinos
 
-[5] EUROPEAN UNION AGENCY FOR CYBERSECURITY. **Subsea Cables — What is at Stake?** Atenas: ENISA, jul. 2023. Disponível em: https://www.enisa.europa.eu/sites/default/files/publications/Undersea%20cables%20-%20What%20is%20a%20stake%20report.pdf. Acesso em: 19 set. 2026.
+[6] EUROPEAN UNION AGENCY FOR CYBERSECURITY. **Subsea Cables — What is at Stake?** Atenas: ENISA, jul. 2023. Disponível em: https://www.enisa.europa.eu/sites/default/files/publications/Undersea%20cables%20-%20What%20is%20a%20stake%20report.pdf. Acesso em: 19 set. 2026.
 
-[6] INTERNATIONAL CABLE PROTECTION COMMITTEE. **Government Best Practices for Protecting and Promoting Resilience of Submarine Telecommunications Cables**, versão 1.2. ICPC, [s.d.]. Disponível em: https://www.iscpc.org/documents/?id=3733. Acesso em: 19 set. 2026.
+[7] INTERNATIONAL CABLE PROTECTION COMMITTEE. **Government Best Practices for Protecting and Promoting Resilience of Submarine Telecommunications Cables**, versão 1.2. ICPC, [s.d.]. Disponível em: https://www.iscpc.org/documents/?id=3733. Acesso em: 19 set. 2026.
 
-[7] TELEGEOGRAPHY. **Do Submarine Cables Account For Over 99% of Intercontinental Data Traffic?** Série Mythbusting, parte 3, 2023. Disponível em: https://resources.telegeography.com/2023-mythbusting-part-3. Acesso em: 19 set. 2026.
+[8] TELEGEOGRAPHY. **Do Submarine Cables Account For Over 99% of Intercontinental Data Traffic?** Série Mythbusting, parte 3, 2023. Disponível em: https://resources.telegeography.com/2023-mythbusting-part-3. Acesso em: 19 set. 2026.
 
-[8] TELEGEOGRAPHY. **Submarine Cable FAQs**. [s.d.]. Disponível em: https://www2.telegeography.com/submarine-cable-faqs-frequently-asked-questions. Acesso em: 19 set. 2026.
+[9] TELEGEOGRAPHY. **Submarine Cable FAQs**. [s.d.]. Disponível em: https://www2.telegeography.com/submarine-cable-faqs-frequently-asked-questions. Acesso em: 19 set. 2026.
 
-[9] NORDUNET. **Polar Connect**. Descrição do projeto de enlace transártico. Disponível em: https://nordu.net/polar-connect/. Acesso em: 19 set. 2026.
+[10] NORDUNET. **Polar Connect**. Descrição do projeto de enlace transártico. Disponível em: https://nordu.net/polar-connect/. Acesso em: 19 set. 2026.
 
 ### Instrumentos normativos
 
-[10] UNIÃO EUROPEIA. **Diretiva (UE) 2022/2555** do Parlamento Europeu e do Conselho, de 14 de dezembro de 2022, relativa a medidas destinadas a garantir um elevado nível comum de cibersegurança na União (Diretiva NIS 2). *Jornal Oficial da União Europeia*, L 333, p. 80–152, 27 dez. 2022. CELEX 32022L2555. Disponível em: http://data.europa.eu/eli/dir/2022/2555/oj. Acesso em: 19 set. 2026.
+[11] UNIÃO EUROPEIA. **Diretiva (UE) 2022/2555** do Parlamento Europeu e do Conselho, de 14 de dezembro de 2022, relativa a medidas destinadas a garantir um elevado nível comum de cibersegurança na União (Diretiva NIS 2). *Jornal Oficial da União Europeia*, L 333, p. 80–152, 27 dez. 2022. CELEX 32022L2555. Disponível em: http://data.europa.eu/eli/dir/2022/2555/oj. Acesso em: 19 set. 2026.
 
-[11] UNIÃO EUROPEIA. **Diretiva (UE) 2022/2557** do Parlamento Europeu e do Conselho, de 14 de dezembro de 2022, relativa à resiliência das entidades críticas e que revoga a Diretiva 2008/114/CE do Conselho (Diretiva CER). *Jornal Oficial da União Europeia*, L 333, p. 164–198, 27 dez. 2022. CELEX 32022L2557. Em vigor desde 16 jan. 2023. Disponível em: http://data.europa.eu/eli/dir/2022/2557/oj. Acesso em: 19 set. 2026.
+[12] UNIÃO EUROPEIA. **Diretiva (UE) 2022/2557** do Parlamento Europeu e do Conselho, de 14 de dezembro de 2022, relativa à resiliência das entidades críticas e que revoga a Diretiva 2008/114/CE do Conselho (Diretiva CER). *Jornal Oficial da União Europeia*, L 333, p. 164–198, 27 dez. 2022. CELEX 32022L2557. Em vigor desde 16 jan. 2023. Disponível em: http://data.europa.eu/eli/dir/2022/2557/oj. Acesso em: 19 set. 2026.
 
-[12] ORGANIZAÇÃO DAS NAÇÕES UNIDAS. **Convenção das Nações Unidas sobre o Direito do Mar**. Montego Bay, 10 dez. 1982. *United Nations Treaty Series*, v. 1833, p. 3. Em vigor desde 16 nov. 1994. Artigos 113 a 115. Disponível em: https://www.un.org/depts/los/convention_agreements/texts/unclos/unclos_e.pdf. Acesso em: 19 set. 2026.
+[13] ORGANIZAÇÃO DAS NAÇÕES UNIDAS. **Convenção das Nações Unidas sobre o Direito do Mar**. Montego Bay, 10 dez. 1982. *United Nations Treaty Series*, v. 1833, p. 3. Em vigor desde 16 nov. 1994. Artigos 113 a 115. Disponível em: https://www.un.org/depts/los/convention_agreements/texts/unclos/unclos_e.pdf. Acesso em: 19 set. 2026.
 
 ### Fontes primárias sobre incidentes
 
-[13] POLIISI — FINNISH POLICE. **Police investigating incidents in the Gulf of Finland in cooperation with other authorities**. Comunicado oficial, 26 dez. 2024. Disponível em: https://poliisi.fi/en/-/police-investigating-incidents-in-the-gulf-of-finland-in-cooperation-with-other-authorities. Acesso em: 19 set. 2026.
+[14] THE BARENTS OBSERVER. **'Human activity' behind Svalbard cable disruption**. Kirkenes, fev. 2022. Disponível em: https://thebarentsobserver.com/en/security/2022/02/unknown-human-activity-behind-svalbard-cable-disruption. Acesso em: 19 set. 2026.
 
-[14] CINIA OY. **A fault in the Cinia C-Lion1 submarine cable between Finland and Germany**. Comunicado oficial, 18 nov. 2024. Disponível em: https://www.cinia.fi/en/news/a-fault-in-the-cinia-c-lion1-submarine-cable-between-finland-and-germany. Acesso em: 19 set. 2026.
+[15] POLIISI — FINNISH POLICE. **Police investigating incidents in the Gulf of Finland in cooperation with other authorities**. Comunicado oficial, 26 dez. 2024. Disponível em: https://poliisi.fi/en/-/police-investigating-incidents-in-the-gulf-of-finland-in-cooperation-with-other-authorities. Acesso em: 19 set. 2026.
 
-[15] CINIA OY. **Cinia's C-Lion1 Submarine Cable Has Fully Restored**. Comunicado oficial, 28 nov. 2024. Disponível em: https://www.cinia.fi/en/news/cinias-c-lion1-submarine-cable-has-fully-restored. Acesso em: 19 set. 2026.
+[16] CINIA OY. **A fault in the Cinia C-Lion1 submarine cable between Finland and Germany**. Comunicado oficial, 18 nov. 2024. Disponível em: https://www.cinia.fi/en/news/a-fault-in-the-cinia-c-lion1-submarine-cable-between-finland-and-germany. Acesso em: 19 set. 2026.
 
-[16] YLE NEWS. **Court u-turn: Finland does have jurisdiction in Eagle S cable damage case**. Helsinque, 27 ago. 2026. Disponível em: https://yle.fi/a/74-20243196. Acesso em: 19 set. 2026.
+[17] CINIA OY. **Cinia's C-Lion1 Submarine Cable Has Fully Restored**. Comunicado oficial, 28 nov. 2024. Disponível em: https://www.cinia.fi/en/news/cinias-c-lion1-submarine-cable-has-fully-restored. Acesso em: 19 set. 2026.
 
-[17] PAPANICOLOPULU, Irini et al. **Anchoring Criminal Jurisdiction at Sea: The Helsinki District Court's Eagle S Judgement and its impact for the protection of submarine cables and pipelines**. EJIL: Talk! — Blog of the European Journal of International Law, 2025. Disponível em: https://www.ejiltalk.org/anchoring-criminal-jurisdiction-at-sea-the-helsinki-district-courts-eagle-s-judgement-and-its-impact-for-the-protection-of-submarine-cables-and-pipelines/. Acesso em: 19 set. 2026.
+[18] YLE NEWS. **Court u-turn: Finland does have jurisdiction in Eagle S cable damage case**. Helsinque, 27 ago. 2026. Disponível em: https://yle.fi/a/74-20243196. Acesso em: 19 set. 2026.
+
+[19] PAPANICOLOPULU, Irini et al. **Anchoring Criminal Jurisdiction at Sea: The Helsinki District Court's Eagle S Judgement and its impact for the protection of submarine cables and pipelines**. EJIL: Talk! — Blog of the European Journal of International Law, 2025. Disponível em: https://www.ejiltalk.org/anchoring-criminal-jurisdiction-at-sea-the-helsinki-district-courts-eagle-s-judgement-and-its-impact-for-the-protection-of-submarine-cables-and-pipelines/. Acesso em: 19 set. 2026.
 
 ### Defesa e cooperação regional
 
-[18] NATO ALLIED MARITIME COMMAND. **NATO's Baltic Sentry steps up patrols in the Baltic Sea to safeguard Critical Undersea Infrastructure**. Northwood, 2025. Disponível em: https://mc.nato.int/media-centre/news/2025/nato-baltic-sentry-steps-up-patrols-in-the-baltic-sea-to-safeguard-critical-undersea-infrastructure. Acesso em: 19 set. 2026.
+[20] NATO ALLIED MARITIME COMMAND. **NATO's Baltic Sentry steps up patrols in the Baltic Sea to safeguard Critical Undersea Infrastructure**. Northwood, 2025. Disponível em: https://mc.nato.int/media-centre/news/2025/nato-baltic-sentry-steps-up-patrols-in-the-baltic-sea-to-safeguard-critical-undersea-infrastructure. Acesso em: 19 set. 2026.
 
 ### Nota sobre as fontes
 
-As referências [16] e [17] são, respectivamente, cobertura jornalística de veículo público e análise doutrinária em blog acadêmico especializado. Foram empregadas por ausência, até a data de acesso, de texto integral publicado das decisões do Tribunal Distrital e do Tribunal de Apelação de Helsinque em repositório de acesso aberto. Recomenda-se, para uso acadêmico formal, a substituição pelas decisões originais quando disponíveis. A autoria da entrada [17] deve ser conferida na fonte antes de citação formal.
+As referências [18] e [19] são, respectivamente, cobertura jornalística de veículo público e análise doutrinária em blog acadêmico especializado. Foram empregadas por ausência, até a data de acesso, de texto integral publicado das decisões do Tribunal Distrital e do Tribunal de Apelação de Helsinque em repositório de acesso aberto. Recomenda-se, para uso acadêmico formal, a substituição pelas decisões originais quando disponíveis. A autoria da entrada [19] deve ser conferida na fonte antes de citação formal.
 
 ---
 
