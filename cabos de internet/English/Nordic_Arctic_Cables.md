@@ -2,7 +2,7 @@
 
 ## Abstract
 
-Roughly 99% of intercontinental data traffic travels through submarine fibre-optic cables, making this physical layer a critical infrastructure asset as essential as power or transport networks. In the Nordic and Arctic region, that infrastructure operates under a singular condition: the same regional warming that makes new trans-Arctic routes viable — reducing sea-ice cover and opening laying windows that were previously impractical — is what degrades the conditions for installing, anchoring, and repairing those systems, through permafrost loss, coastal erosion, and intensified maritime traffic. This paper analyses that tension. It first maps the Nordic and Arctic cable landscape, including the trans-Arctic projects under development. It then examines the Arctic climate as a physical risk vector and connects it to the hybrid threat model evidenced by the Svalbard (2022) and Baltic Sea (2023–2024) incidents. Finally, it discusses the applicable regulatory framework (NIS2, the CER Directive, UNCLOS) and proposes resilience priorities: route and landing-point diversity, distributed acoustic sensing, regional ice-class repair capacity, and infrastructure planning informed by climate projections. The argument advanced is that climate risk and adversarial risk are not separate agendas in this region, but manifestations of a single resilience problem.
+Submarine fibre-optic cables carry very nearly all intercontinental data traffic — the widely repeated 99% figure rests on weak documentary foundations and is examined critically in Section 1 — making this physical layer a critical infrastructure asset as essential as power or transport networks. In the Nordic and Arctic region, that infrastructure operates under a singular condition: the same regional warming that makes new trans-Arctic routes viable — reducing sea-ice cover and opening laying windows that were previously impractical — is what degrades the conditions for installing, anchoring, and repairing those systems, through permafrost loss, coastal erosion, and intensified maritime traffic. This paper analyses that tension. It first maps the Nordic and Arctic cable landscape, including the trans-Arctic projects under development. It then examines the Arctic climate as a physical risk vector and connects it to the hybrid threat model evidenced by the Svalbard (2022) and Baltic Sea (2023–2024) incidents. Finally, it discusses the applicable regulatory framework (NIS2, the CER Directive, UNCLOS) and proposes resilience priorities: route and landing-point diversity, distributed acoustic sensing, regional ice-class repair capacity, and infrastructure planning informed by climate projections. The argument advanced is that climate risk and adversarial risk are not separate agendas in this region, but manifestations of a single resilience problem.
 
 ---
 
@@ -14,7 +14,9 @@ Submarine Cables, Arctic Infrastructure, Critical Infrastructure Protection, Cli
 
 ## 1. Introduction
 
-Public perception of the internet is dominated by immaterial metaphors — cloud, ether, wireless. The operational reality is the opposite: intercontinental connectivity depends on a finite set of fibre-optic cables laid on the seabed, each a few centimetres in diameter, whose physical destruction interrupts digital services at national scale. Estimates widely cited in the telecommunications literature indicate that roughly 99% of international data traffic traverses these systems, with satellite links serving as redundancy of limited capacity rather than as a substitute.
+Public perception of the internet is dominated by immaterial metaphors — cloud, ether, wireless. The operational reality is the opposite: intercontinental connectivity depends on a finite set of fibre-optic cables laid on the seabed, each a few centimetres in diameter, whose physical destruction interrupts digital services at national scale.
+
+The figure most often repeated in this debate warrants care. The claim that "99% of intercontinental traffic travels through submarine cables" circulates widely in the press and in policy documents, almost always without a source. TeleGeography, to whom the figure is frequently attributed, notes that it holds no direct measurement of global traffic and that the traceable data point is a different one: statistics from the United States Federal Communications Commission indicate that satellites account for roughly 0.37% of US international capacity [7, 8]. The qualitative conclusion remains robust — dependence on the submarine layer is very nearly total, and satellite links function as redundancy of limited capacity rather than as a substitute — but the numerical precision often attached to it does not hold. This paper adopts the qualitative formulation.
 
 Three characteristics make this topic particularly pressing in the Nordic region. First, structural dependency is high: Iceland, the Faroe Islands, Greenland, and Svalbard are territories whose entire connectivity rests on a very small number of cables — in some cases, two. Second, the region hosts an unusual density of sensitive digital infrastructure, including large-scale data centres drawn by the cold climate and inexpensive renewable energy, alongside satellite ground stations of scientific and military significance. Third, the retreat of Arctic sea ice has turned the region into the object of trans-Arctic route projects — notably Far North Fiber and Polar Connect — which promise to cut latency between Asia and Europe substantially relative to routes via Suez.
 
@@ -28,7 +30,7 @@ In parallel, the sequence of incidents between 2022 and 2024 in the Norwegian Ar
 
 The study is structured as a documentary and analytical review. Primary sources are of four kinds: peer-reviewed academic literature on permafrost degradation and climate impacts on Arctic infrastructure; European Union regulatory instruments and international law; technical reports from submarine cable sector bodies; and public reporting and official statements concerning the 2022–2024 incidents. No proprietary operational data from cable operators was used.
 
-The geographic scope covers the five Nordic countries and their associated territories — Iceland, the Faroe Islands, Greenland, and Svalbard — extending to the Baltic Sea where recent incidents and the interconnection mesh require it. The temporal scope of the incidents analysed runs from 2022 to the end of 2024. Limitations arising from these choices are set out in Section 9.
+The geographic scope covers the five Nordic countries and their associated territories — Iceland, the Faroe Islands, Greenland, and Svalbard — extending to the Baltic Sea where recent incidents and the interconnection mesh require it. The temporal scope of the incidents analysed runs from 2022 to the end of 2024; the judicial and institutional developments arising from them are followed to August 2026, since the case law produced in the Eagle S proceedings bears directly on the analysis in Section 6.2. Limitations arising from these choices are set out in Section 9.
 
 This paper is in dialogue with other work in this repository, in particular [*Security Challenges in Cloud-Based Critical Infrastructure Systems*](../../academics/Security_Challenges.md), which addresses the logical and cloud layer of the same asset class, and [*IT and OT as a Bridge of Friendship*](../../academics/ItAndOT.md), which examines the information/operational technology convergence referenced in Section 4.
 
@@ -46,7 +48,7 @@ The region's cable infrastructure can be organised into four layers.
 
 **Intra-Nordic and Baltic links.** The Baltic Sea is crossed by a dense mesh of telecommunications and power cables interconnecting Finland, Sweden, Estonia, Lithuania, Poland, and Germany. Among them, C-Lion1 (Helsinki–Rostock) and the BCS East-West Interlink (Lithuania–Sweden) became prominent through the damage sustained in 2024. The determining geographic characteristic here is depth: the Baltic is a shallow sea, which places cables within reach of commercial vessel anchors along much of their route.
 
-**Trans-Arctic routes under development.** The Far North Fiber project proposes to connect Japan and Europe across the Northwest Passage, with landings planned in Alaska, the Canadian Arctic, Greenland, Iceland, Norway, Finland, and Ireland. Polar Connect, pursued within NORDUnet and the Nordic academic networks, is studying a route across the central Arctic Ocean. Both derive their viability from ice conditions altered by regional warming.
+**Trans-Arctic routes under development.** The Far North Fiber project proposes to connect Japan and Europe across the Northwest Passage, with landings planned in Alaska, the Canadian Arctic, Greenland, Iceland, Norway, Finland, and Ireland. Polar Connect, pursued within NORDUnet and the Nordic academic networks, is studying a route from Norway via Svalbard across the Arctic Ocean [9]. Both derive their viability from ice conditions altered by regional warming.
 
 **Table 1 — Reference systems in the Nordic and Arctic region**
 
@@ -72,17 +74,17 @@ Landing stations warrant specific attention. They are terrestrial, fixed, public
 
 ## 3. The Arctic Climate as a Physical Risk Vector
 
-The Arctic is warming at several times the global average rate, a phenomenon documented in the climatological literature as Arctic amplification. The consequences for cable infrastructure distribute across five distinct mechanisms.
+The Arctic is warming at several times the global average rate, a phenomenon documented in the climatological literature as Arctic amplification. Rantanen et al. (2022) estimate that over the period 1979 to 2021 the region warmed approximately 3.8 times faster than the planetary average, with a higher ratio still in the Barents Sea [2]. The consequences for cable infrastructure distribute across five distinct mechanisms.
 
 ### 3.1 Sea-Ice Retreat: Enablement and Exposure
 
-The annual minimum extent of Arctic sea ice, measured in September, shows a consistent declining trend over the past four decades. For the cable industry, the primary effect is enabling: longer navigation windows permit laying operations on previously inaccessible routes, which is a precondition for projects such as Far North Fiber.
+The annual minimum extent of Arctic sea ice, measured in September, shows a consistent declining trend over the past four decades, per the National Snow and Ice Data Center series [3] and the syntheses of the Arctic Monitoring and Assessment Programme [4]. For the cable industry, the primary effect is enabling: longer navigation windows permit laying operations on previously inaccessible routes, which is a precondition for projects such as Far North Fiber.
 
-The secondary effect, however, is exposure. Navigable waters attract commercial, fishing, and tourist maritime traffic. The dominant cause of submarine cable faults globally is neither sabotage nor natural disaster, but routine human activity — dragged anchors and bottom-trawling gear. A navigable Arctic is, by construction, an Arctic in which that dominant cause begins to operate. Reduced ice does not eliminate ice risk: drifting icebergs and ice keel scouring of the seabed remain threats in shallow coastal waters, and increased ice mobility may make such events less predictable.
+The secondary effect, however, is exposure. Navigable waters attract commercial, fishing, and tourist maritime traffic. The dominant cause of submarine cable faults globally is neither sabotage nor natural disaster, but routine human activity — dragged anchors and bottom-trawling gear. Sector data compiled by the International Cable Protection Committee place that category at between 70% and 80% of all faults, within a universe on the order of two hundred faults per year across global systems [5, 6]. A navigable Arctic is, by construction, an Arctic in which that dominant cause begins to operate. Reduced ice does not eliminate ice risk: drifting icebergs and ice keel scouring of the seabed remain threats in shallow coastal waters, and increased ice mobility may make such events less predictable.
 
 ### 3.2 Permafrost Degradation Beneath Terrestrial Facilities
 
-This is the mechanism of greatest relevance to landing stations and terrestrial backhaul. Permafrost thaw reduces the bearing capacity of the ground, produces differential settlement, and compromises foundations designed on the premise of permanently frozen terrain. Hjort et al. (2018), in a study published in *Nature Communications*, estimated that a majority share of built infrastructure in the Arctic permafrost domain — on the order of 70% — lies in areas at elevated risk of thaw-related damage by mid-century.
+This is the mechanism of greatest relevance to landing stations and terrestrial backhaul. Permafrost thaw reduces the bearing capacity of the ground, produces differential settlement, and compromises foundations designed on the premise of permanently frozen terrain. Hjort et al. (2018), in a study published in *Nature Communications*, estimated that some 70% of built infrastructure in the permafrost domain lies in areas with high potential for near-surface permafrost thaw, and that roughly one-third of pan-Arctic infrastructure sits in regions where thaw-related ground instability can cause severe damage to the built environment by mid-century — proportions which, the authors note, are not substantially reduced even under a scenario in which the Paris Agreement targets are met [1].
 
 The implication for cables is direct and frequently underestimated: the resilience of a submarine system is generally assessed by its submerged segment, yet the point of failure may be on dry land, beneath a landing facility whose foundation is shifting.
 
@@ -122,9 +124,9 @@ The classification of submarine cables as critical infrastructure follows less f
 
 **Balticconnector and associated cables, October 2023.** The Balticconnector gas pipeline between Finland and Estonia and nearby telecommunications cables were damaged simultaneously. The Finnish investigation focused on anchor dragging by a commercial vessel.
 
-**Baltic Sea, November 2024.** The BCS East-West Interlink (Lithuania–Sweden) and C-Lion1 (Finland–Germany) cables were damaged within roughly 24 hours of each other, in a pattern consistent with anchor dragging along a single shipping route.
+**Baltic Sea, November 2024.** The BCS East-West Interlink (Lithuania–Sweden) and C-Lion1 (Finland–Germany) cables were damaged within roughly 24 hours of each other, in a pattern consistent with anchor dragging along a single shipping route. The operator Cinia recorded the C-Lion1 fault at 04:04 Eastern European Time on 18 November 2024, attributed it to external physical force, and filed a request for investigation with the Finnish National Bureau of Investigation the following day [14]; service was restored on 28 November, after ten days of unavailability and the transit of a repair vessel from Calais [15]. The interval illustrates the argument of Section 3.5, even in a sea of comparatively easy access.
 
-**Estlink 2 and adjacent cables, December 2024.** The Estlink 2 power cable between Finland and Estonia and several telecommunications cables were damaged. Finnish authorities detained and investigated a tanker suspected of anchor dragging, marking an inflection in the region's law enforcement posture.
+**Estlink 2 and adjacent cables, December 2024.** On 25 December 2024 the Estlink 2 power cable between Finland and Estonia and four telecommunications cables were damaged. Finnish authorities brought the tanker *Eagle S*, registered in the Cook Islands, into Finnish territorial waters and opened an investigation; according to the National Bureau of Investigation, the vessel dragged its anchor along the seabed for a distance on the order of ninety to one hundred kilometres [13]. The episode marked an inflection in the region's law enforcement posture and produced the judicial development addressed in Section 6.2, whose significance exceeds that of the isolated incident.
 
 The pattern common to these cases is significant for risk analysis: the physical mechanism of the damage — an anchor dragged along the seabed — is identical to that of an ordinary maritime accident. That equivalence is precisely what makes attribution difficult, and what the security literature characterises as action below the threshold of armed conflict.
 
@@ -158,17 +160,23 @@ Third, **the cyber dimension should not be omitted.** Public discussion concentr
 
 ### 6.1 European Level
 
-The NIS2 Directive (Directive (EU) 2022/2555) broadens the scope of entities subject to cyber risk management and incident notification requirements, explicitly including digital infrastructure. The CER Directive (Directive (EU) 2022/2557), on the resilience of critical entities, addresses the physical dimension and requires Member States to identify critical entities and conduct risk assessments that account for, among other factors, natural risks and climate change. Read together, the two directives are the most direct instrument for addressing the convergence analysed in this paper.
+The NIS2 Directive (Directive (EU) 2022/2555) [10] broadens the scope of entities subject to cyber risk management and incident notification requirements, explicitly including digital infrastructure. The CER Directive (Directive (EU) 2022/2557) [11], on the resilience of critical entities, addresses the physical dimension and requires Member States to identify critical entities and conduct risk assessments that account for, among other factors, natural risks and climate change. Read together, the two directives are the most direct instrument for addressing the convergence analysed in this paper.
 
 Applicability across the region is not uniform. Denmark, Sweden, and Finland are European Union Member States. Norway and Iceland are part of the European Economic Area, with incorporation through a distinct mechanism and timetable. Greenland and the Faroe Islands hold specific statuses. The result is a regulatory mosaic over an infrastructure that is, by nature, transboundary.
 
 ### 6.2 International Law of the Sea
 
-The United Nations Convention on the Law of the Sea (UNCLOS) addresses the protection of submarine cables in Articles 113 to 115, obliging states to make it a punishable offence for a vessel flying their flag to damage a submarine cable wilfully or through culpable negligence. The regime has three operational weaknesses recognised in the literature: it depends on flag state jurisdiction, whose cooperation is uncertain; it was conceived for accidents rather than deliberate state action; and it offers limited interdiction instruments on the high seas. The 2024 Baltic events, in which coastal authorities adopted more assertive measures towards suspect vessels, indicate a practical test of that regime's limits.
+The United Nations Convention on the Law of the Sea (UNCLOS) [12] addresses the protection of submarine cables in Articles 113 to 115, obliging states to make it a punishable offence for a vessel flying their flag to damage a submarine cable wilfully or through culpable negligence. The regime has three operational weaknesses recognised in the literature: it depends on flag state jurisdiction, whose cooperation is uncertain; it was conceived for accidents rather than deliberate state action; and it offers limited interdiction instruments on the high seas.
+
+The *Eagle S* case turned that doctrinal discussion into case law. In October 2025 the Helsinki District Court dismissed the criminal proceedings against the vessel's master and two officers on the ground that Finland lacked jurisdiction: the acts charged had occurred in the Finnish exclusive economic zone, outside the territorial sea, and Finnish criminal law therefore did not reach them. The ruling resonated as a concrete demonstration of the gap the literature had identified — vessels under flags of convenience could damage subsea infrastructure in non-territorial waters without effective criminal consequence.
+
+On 27 August 2026 the Helsinki Court of Appeal unanimously overturned that decision, affirming Finnish jurisdiction and ordering the case reopened at first instance [16, 17]. Its reasoning is analytically relevant here: while the court accepted that the initial dropping of the anchor might be treated as accidental, it held that what followed — the prolonged drag along the seabed — does not fall within the category of maritime accident for UNCLOS purposes. The decision is not final and may be appealed to the Supreme Court, with the deadline falling in October 2026.
+
+The episode confirms the central claim of Section 5 by judicial route: the line separating accident from aggression is not given by the physical mechanism, which is identical in both cases, but by an assessment of subsequent conduct. So long as that assessment depends on protracted litigation of uncertain outcome, deterrence through legal consequence remains weak — which raises the relative weight of the detection and resilient-design measures discussed in Section 7.
 
 ### 6.3 Defence and Regional Cooperation
 
-The recent institutional response includes maritime surveillance initiatives dedicated to protecting subsea infrastructure, among them operation Nordic Warden, conducted within the Joint Expeditionary Force, and the Baltic Sentry activity launched by NATO in January 2025 following the series of incidents. Finland's and Sweden's accession to NATO substantively altered the regional security architecture over the period analysed.
+The recent institutional response includes maritime surveillance initiatives dedicated to protecting subsea infrastructure, among them operation Nordic Warden, conducted within the Joint Expeditionary Force, and the Baltic Sentry activity launched by NATO on 14 January 2025 following the series of incidents, led by Allied Joint Force Command Brunssum in coordination with Allied Maritime Command [18]. Finland's and Sweden's accession to NATO substantively altered the regional security architecture over the period analysed.
 
 ---
 
@@ -227,13 +235,13 @@ The central tension identified in this paper can be stated directly: **Arctic th
 
 A second conclusion concerns the relationship between climate and hybrid threat. No causal relationship between climate change and adversarial action is asserted here. The argument is more specific and, from a defence standpoint, more consequential: the increase in legitimate maritime traffic raises the rate of genuinely accidental incidents, which widens the background noise against which a deliberate event would have to be distinguished. In a domain where the physical mechanism of accident and of aggression are indistinguishable, raising the background noise is, functionally, degrading attribution capability.
 
-A third observation concerns the asymmetry between the cost of attack and the cost of defence. Damaging a cable requires modest and widely available means. Protecting one requires continuous maritime surveillance over extensive areas, naval repair capacity, and expensive redundancy. That asymmetry is not eliminable by technical means; it shifts the weight of the response towards resilient design, early detection, and deterrence through attribution and credible legal consequence — which gives the regulatory discussion in Section 6 operational rather than merely formal weight.
+A third observation concerns the asymmetry between the cost of attack and the cost of defence. Damaging a cable requires modest and widely available means. Protecting one requires continuous maritime surveillance over extensive areas, naval repair capacity, and expensive redundancy. That asymmetry is not eliminable by technical means; it shifts the weight of the response towards resilient design, early detection, and deterrence through attribution and credible legal consequence — which gives the regulatory discussion in Section 6 operational rather than merely formal weight. The judicial trajectory of the *Eagle S* case, which consumed nearly two years merely to settle which forum had competence, measures the distance between the deterrence intended and the deterrence actually available.
 
 ---
 
 ## 9. Limitations
 
-This work is a documentary and analytical review, based on academic literature, public regulatory documents, and publicly available incident reporting. It does not incorporate proprietary operational data from cable operators, whose disclosure is restricted for commercial and security reasons. The investigations into the 2022–2024 incidents are, in part, without definitive public conclusion, so the characterisations presented in Section 4 should be read as a description of what is publicly known, not as attribution. The quantitative estimates cited — the share of intercontinental traffic carried by cables, the proportion of Arctic infrastructure at thaw risk — derive from the sources indicated and carry the methodological uncertainties proper to them. Finally, the regulatory and regional security situation described reflects the state of affairs as of the time of writing and is subject to rapid change.
+This work is a documentary and analytical review, based on academic literature, public regulatory documents, and publicly available incident reporting. It does not incorporate proprietary operational data from cable operators, whose disclosure is restricted for commercial and security reasons. The investigations into the 2022–2024 incidents are, in part, without definitive public conclusion, so the characterisations presented in Section 4 should be read as a description of what is publicly known, not as attribution. The quantitative estimates cited — the share of intercontinental traffic carried by cables, the proportion of Arctic infrastructure at thaw risk — derive from the sources indicated and carry the methodological uncertainties proper to them. Finally, the regulatory and regional security situation described reflects the state of affairs as of September 2026 and is subject to rapid change; in particular, the outcome of the *Eagle S* case remains pending a possible appeal to the Finnish Supreme Court, so the conclusions of Section 6.2 should be read as analysis of a precedent that is not yet settled.
 
 ---
 
@@ -249,18 +257,59 @@ The physical layer of the internet was, for a long time, treated as a solved eng
 
 ## References
 
-The references below indicate the sources and categories of material underpinning the analysis. Consultation of the most recent versions is recommended, given the rapid evolution of the subject.
+References follow an author–date style with numbered in-text keys. All online sources were verified on **19 September 2026**, the access date given in each entry.
 
-1. Hjort, J. et al. *Degrading permafrost puts Arctic infrastructure at risk by mid-century.* Nature Communications, vol. 9, 2018.
-2. TeleGeography. *Submarine Cable Map* and associated reports on international traffic and the cable ship fleet.
-3. International Cable Protection Committee (ICPC). Publications on submarine cable fault causes and protection best practice.
-4. European Union. Directive (EU) 2022/2555 (NIS2), on measures for a high common level of cybersecurity across the Union.
-5. European Union. Directive (EU) 2022/2557 (CER), on the resilience of critical entities.
-6. United Nations. United Nations Convention on the Law of the Sea (UNCLOS), Articles 113 to 115.
-7. National Snow and Ice Data Center (NSIDC). Arctic sea ice extent series.
-8. Arctic Monitoring and Assessment Programme (AMAP). Reports on Arctic amplification and infrastructure impacts.
-9. Public reporting and official statements concerning the Svalbard (2022), Balticconnector (2023), and Baltic Sea (2024) incidents.
-10. Public documentation of the Far North Fiber and Polar Connect (NORDUnet) projects.
+### Academic literature
+
+[1] Hjort, J., Karjalainen, O., Aalto, J., Westermann, S., Romanovsky, V. E., Nelson, F. E., Etzelmüller, B. and Luoto, M. (2018) 'Degrading permafrost puts Arctic infrastructure at risk by mid-century', *Nature Communications*, 9, art. 5147, 11 December. DOI: 10.1038/s41467-018-07557-4. Available at: https://www.nature.com/articles/s41467-018-07557-4 (Accessed: 19 September 2026).
+
+[2] Rantanen, M., Karpechko, A. Yu., Lipponen, A., Nordling, K., Hyvärinen, O., Ruosteenoja, K., Vihma, T. and Laaksonen, A. (2022) 'The Arctic has warmed nearly four times faster than the globe since 1979', *Communications Earth & Environment*, 3, art. 168, 11 August. DOI: 10.1038/s43247-022-00498-3. Available at: https://www.nature.com/articles/s43247-022-00498-3 (Accessed: 19 September 2026).
+
+### Climate and environmental data
+
+[3] Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., Windnagel, A. K. and Stafford, T. (2025) *Sea Ice Index*, Version 4 [dataset G02135]. Boulder, CO: National Snow and Ice Data Center. DOI: 10.7265/a98x-0f50. Available at: https://nsidc.org/data/g02135/versions/4 (Accessed: 19 September 2026).
+
+[4] Arctic Monitoring and Assessment Programme (2021) *Arctic Climate Change Update 2021: Key Trends and Impacts*. Tromsø: AMAP, viii + 148 pp. Available at: https://www.amap.no/documents/doc/amap-arctic-climate-change-update-2021-key-trends-and-impacts/3594 (Accessed: 19 September 2026).
+
+### Submarine cable infrastructure
+
+[5] European Union Agency for Cybersecurity (2023) *Subsea Cables — What is at Stake?* Athens: ENISA, July. Available at: https://www.enisa.europa.eu/sites/default/files/publications/Undersea%20cables%20-%20What%20is%20a%20stake%20report.pdf (Accessed: 19 September 2026).
+
+[6] International Cable Protection Committee (n.d.) *Government Best Practices for Protecting and Promoting Resilience of Submarine Telecommunications Cables*, version 1.2. ICPC. Available at: https://www.iscpc.org/documents/?id=3733 (Accessed: 19 September 2026).
+
+[7] TeleGeography (2023) *Do Submarine Cables Account For Over 99% of Intercontinental Data Traffic?* Mythbusting series, part 3. Available at: https://resources.telegeography.com/2023-mythbusting-part-3 (Accessed: 19 September 2026).
+
+[8] TeleGeography (n.d.) *Submarine Cable FAQs*. Available at: https://www2.telegeography.com/submarine-cable-faqs-frequently-asked-questions (Accessed: 19 September 2026).
+
+[9] NORDUnet (n.d.) *Polar Connect*. Trans-Arctic link project description. Available at: https://nordu.net/polar-connect/ (Accessed: 19 September 2026).
+
+### Legal instruments
+
+[10] European Union (2022) *Directive (EU) 2022/2555 of the European Parliament and of the Council of 14 December 2022 on measures for a high common level of cybersecurity across the Union (NIS 2 Directive)*. Official Journal of the European Union, L 333, pp. 80–152, 27 December. CELEX 32022L2555. Available at: http://data.europa.eu/eli/dir/2022/2555/oj (Accessed: 19 September 2026).
+
+[11] European Union (2022) *Directive (EU) 2022/2557 of the European Parliament and of the Council of 14 December 2022 on the resilience of critical entities and repealing Council Directive 2008/114/EC (CER Directive)*. Official Journal of the European Union, L 333, pp. 164–198, 27 December. CELEX 32022L2557. In force since 16 January 2023. Available at: http://data.europa.eu/eli/dir/2022/2557/oj (Accessed: 19 September 2026).
+
+[12] United Nations (1982) *United Nations Convention on the Law of the Sea*. Montego Bay, 10 December. *United Nations Treaty Series*, vol. 1833, p. 3. In force since 16 November 1994. Articles 113–115. Available at: https://www.un.org/depts/los/convention_agreements/texts/unclos/unclos_e.pdf (Accessed: 19 September 2026).
+
+### Primary sources on incidents
+
+[13] Poliisi — Finnish Police (2024) *Police investigating incidents in the Gulf of Finland in cooperation with other authorities*. Official statement, 26 December. Available at: https://poliisi.fi/en/-/police-investigating-incidents-in-the-gulf-of-finland-in-cooperation-with-other-authorities (Accessed: 19 September 2026).
+
+[14] Cinia Oy (2024) *A fault in the Cinia C-Lion1 submarine cable between Finland and Germany*. Official statement, 18 November. Available at: https://www.cinia.fi/en/news/a-fault-in-the-cinia-c-lion1-submarine-cable-between-finland-and-germany (Accessed: 19 September 2026).
+
+[15] Cinia Oy (2024) *Cinia's C-Lion1 Submarine Cable Has Fully Restored*. Official statement, 28 November. Available at: https://www.cinia.fi/en/news/cinias-c-lion1-submarine-cable-has-fully-restored (Accessed: 19 September 2026).
+
+[16] Yle News (2026) *Court u-turn: Finland does have jurisdiction in Eagle S cable damage case*. Helsinki, 27 August. Available at: https://yle.fi/a/74-20243196 (Accessed: 19 September 2026).
+
+[17] *Anchoring Criminal Jurisdiction at Sea: The Helsinki District Court's Eagle S Judgement and its impact for the protection of submarine cables and pipelines* (2025). EJIL: Talk! — Blog of the European Journal of International Law. Available at: https://www.ejiltalk.org/anchoring-criminal-jurisdiction-at-sea-the-helsinki-district-courts-eagle-s-judgement-and-its-impact-for-the-protection-of-submarine-cables-and-pipelines/ (Accessed: 19 September 2026).
+
+### Defence and regional cooperation
+
+[18] NATO Allied Maritime Command (2025) *NATO's Baltic Sentry steps up patrols in the Baltic Sea to safeguard Critical Undersea Infrastructure*. Northwood. Available at: https://mc.nato.int/media-centre/news/2025/nato-baltic-sentry-steps-up-patrols-in-the-baltic-sea-to-safeguard-critical-undersea-infrastructure (Accessed: 19 September 2026).
+
+### Note on sources
+
+References [16] and [17] are, respectively, public-service journalism and doctrinal analysis on a specialist academic blog. They are used because, as of the access date, no full published text of the Helsinki District Court and Court of Appeal decisions was available in an open-access repository. For formal academic use, substitution with the original judgments is recommended once available. The authorship of entry [17] should be checked against the source before formal citation.
 
 ---
 
