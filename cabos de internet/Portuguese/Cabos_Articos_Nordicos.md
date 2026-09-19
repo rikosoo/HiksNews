@@ -24,7 +24,13 @@ Paralelamente, a sequência de incidentes ocorridos entre 2022 e 2024 no Ártico
 2. Como os riscos climáticos e os riscos adversariais interagem, em vez de se somarem de forma independente?
 3. Quais estratégias de resiliência são aplicáveis a um ambiente em que a capacidade de reparo é geograficamente e sazonalmente restrita?
 
-O estudo se estrutura como uma revisão documental e analítica, cujas limitações estão explicitadas na Seção 9.
+### 1.1 Metodologia e escopo
+
+O estudo se estrutura como uma revisão documental e analítica. As fontes primárias são de quatro tipos: literatura acadêmica revisada por pares sobre degradação de permafrost e impactos climáticos em infraestrutura ártica; documentos regulatórios da União Europeia e instrumentos de direito internacional; relatórios técnicos de entidades setoriais de cabos submarinos; e relatos públicos e comunicados oficiais referentes aos incidentes de 2022 a 2024. Não foram utilizados dados operacionais proprietários de operadores de cabo.
+
+O escopo geográfico compreende os cinco países nórdicos e seus territórios associados — Islândia, Ilhas Faroe, Groenlândia e Svalbard —, com extensão ao mar Báltico onde os incidentes recentes e a malha de interconexão o exigem. O escopo temporal dos incidentes analisados vai de 2022 ao final de 2024. As limitações decorrentes dessas escolhas estão explicitadas na Seção 9.
+
+Este artigo dialoga com outros trabalhos deste repositório, em particular [*Security Challenges in Cloud-Based Critical Infrastructure Systems*](../../academics/Security_Challenges.md), que trata da camada lógica e de nuvem da mesma classe de ativos, e [*IT and OT as a Bridge of Friendship*](../../academics/ItAndOT.md), que examina a convergência entre tecnologia de informação e tecnologia operacional referida na Seção 4.
 
 ---
 
@@ -41,6 +47,20 @@ A infraestrutura de cabos da região pode ser organizada em quatro camadas.
 **Enlaces intranórdicos e bálticos.** O mar Báltico é atravessado por uma malha densa de cabos de telecomunicações e de energia que interconecta Finlândia, Suécia, Estônia, Lituânia, Polônia e Alemanha. Entre eles, o C-Lion1 (Helsinque–Rostock) e o BCS East-West Interlink (Lituânia–Suécia) ganharam notoriedade pelos danos sofridos em 2024. A característica geográfica determinante aqui é a profundidade: o Báltico é um mar raso, o que coloca os cabos ao alcance de âncoras de navios comerciais em grande parte de seu traçado.
 
 **Rotas transárticas em desenvolvimento.** O projeto Far North Fiber propõe conectar Japão e Europa atravessando a Passagem Noroeste, com aterragens previstas no Alasca, no Canadá ártico, na Groenlândia, na Islândia, na Noruega, na Finlândia e na Irlanda. O Polar Connect, conduzido no âmbito da NORDUnet e de redes acadêmicas nórdicas, estuda uma rota através do Oceano Ártico central. Ambos derivam sua viabilidade das condições de gelo alteradas pelo aquecimento regional.
+
+**Tabela 1 — Sistemas de referência na região nórdica e ártica**
+
+| Sistema | Rota | Em serviço | Observação |
+|---|---|---|---|
+| FARICE-1 | Islândia – Ilhas Faroe – Escócia | 2004 | Primeiro enlace moderno da Islândia |
+| DANICE | Islândia – Dinamarca | 2009 | Segunda rota islandesa |
+| IRIS | Islândia – Irlanda | 2023 | Adicionado por argumento explícito de redundância nacional |
+| Greenland Connect | Groenlândia – Islândia / Canadá | 2009 | Dependência concentrada |
+| Svalbard Undersea Cable System | Longyearbyen – Noruega continental | 2004 | Dois pares de fibras; sustenta a estação SvalSat |
+| C-Lion1 | Helsinque – Rostock | 2016 | Danificado em novembro de 2024 |
+| BCS East-West Interlink | Lituânia – Suécia | 2009 | Danificado em novembro de 2024 |
+| Far North Fiber | Japão – Europa, via Passagem Noroeste | Em projeto | Viabilidade decorrente do recuo do gelo |
+| Polar Connect | Europa – Ásia, via Ártico central | Em estudo | Conduzido por redes acadêmicas nórdicas |
 
 ### 2.2 Concentração e pontos de estrangulamento
 
@@ -94,6 +114,8 @@ A classificação de cabos submarinos como infraestrutura crítica decorre menos
 
 **Ciência e observação da Terra.** O caso de Svalbard é ilustrativo: a estação SvalSat realiza downlink de dados de satélites de observação polar para operadores internacionais, e o escoamento desses dados depende do cabo submarino. Um dano ao enlace afeta usuários muito além da Noruega.
 
+**Data centers.** A atratividade da região para computação em larga escala repousa sobre energia renovável barata e resfriamento natural, mas o valor econômico dessa carga de trabalho só se realiza por meio da conectividade internacional. Concentrar capacidade computacional em um local com poucos caminhos de saída transfere o risco de concentração do cabo para os serviços nele hospedados.
+
 ### 4.1 Incidentes de referência
 
 **Svalbard, janeiro de 2022.** Um dos dois cabos do sistema de Svalbard sofreu dano em trecho de águas profundas. O enlace remanescente manteve a conectividade do arquipélago, o que demonstrou o valor da redundância existente — e, simultaneamente, o fato de que o sistema operou, durante o período de reparo, sem qualquer margem adicional. A investigação conduzida pelas autoridades norueguesas apontou atividade humana como causa provável, sem que se chegasse a uma atribuição conclusiva. A ausência de atribuição é, em si, um achado analítico relevante.
@@ -111,6 +133,8 @@ O padrão comum a esses casos é significativo para a análise de risco: o mecan
 ## 5. Modelo de Ameaça: Natural, Acidental e Adversarial
 
 A prática convencional separa a análise de risco natural da análise de risco de segurança. Para cabos árticos nórdicos, essa separação produz avaliações incompletas, porque os três tipos de origem convergem sobre o mesmo pequeno conjunto de pontos de falha e, em parte, sobre o mesmo mecanismo físico.
+
+**Tabela 2 — Modelo de ameaça consolidado**
 
 | Origem | Mecanismo típico | Frequência relativa | Tempo de reparo | Atribuição |
 |---|---|---|---|---|
@@ -176,6 +200,25 @@ As medidas a seguir são organizadas por horizonte de implementação e tratam c
 
 Sistemas com vida útil de 25 anos instalados hoje operarão sob condições ambientais significativamente distintas das atuais. Recomenda-se que a seleção de rota, o dimensionamento de enterramento, a escolha do sítio de aterragem e o projeto de fundação utilizem projeções climáticas regionais como parâmetro de entrada, em vez de séries históricas tratadas como estacionárias. Para novas rotas transárticas, esse princípio é especialmente pertinente, dado que a própria viabilidade do projeto decorre de uma mudança ambiental ainda em curso.
 
+### 7.5 Síntese
+
+A Tabela 3 relaciona cada medida aos vetores de risco da Seção 5, evidenciando quais delas atuam sobre mais de uma origem de risco simultaneamente — critério útil de priorização quando o orçamento é limitado.
+
+**Tabela 3 — Medidas de resiliência e vetores de risco atendidos**
+
+| Medida | Geotécnico | Gelo | Acidental | Adversarial | Horizonte | Custo relativo |
+|---|:---:|:---:|:---:|:---:|---|---|
+| Diversidade de rota e aterragem | ✔ | ✔ | ✔ | ✔ | Longo | Alto |
+| Heterogeneidade tecnológica (satélite) | ✔ | ✔ | ✔ | ✔ | Curto | Médio |
+| Sensoriamento acústico distribuído (DAS) | — | ✔ | ✔ | ✔ | Curto | Baixo a médio |
+| Fusão com dados AIS | — | — | ✔ | ✔ | Curto | Baixo |
+| Monitoramento geotécnico das aterragens | ✔ | — | — | — | Médio | Baixo |
+| Navio-cabo com classe de gelo na região | ✔ | ✔ | ✔ | ✔ | Médio | Muito alto |
+| Contingência intersetorial | ✔ | ✔ | ✔ | ✔ | Curto | Baixo |
+| Projeto informado por clima | ✔ | ✔ | — | — | Longo | Baixo no projeto novo |
+
+Duas leituras se destacam. O sensoriamento distribuído e a fusão com dados AIS oferecem a melhor relação entre custo e cobertura de vetores, por atuarem sobre o tempo de localização da falha e sobre a capacidade de atribuição. A capacidade regional de reparo é a medida mais cara e a única que reduz diretamente a duração da indisponibilidade, que é a variável determinante identificada na Seção 3.5.
+
 ---
 
 ## 8. Discussão
@@ -221,4 +264,4 @@ As referências abaixo indicam as fontes e categorias de material que fundamenta
 
 ---
 
-*Artigo de natureza acadêmica e analítica, elaborado a partir de fontes públicas. Contribuições, correções e discussões são bem-vindas por meio de issues ou pull requests.*
+*Artigo de natureza acadêmica e analítica, elaborado a partir de fontes públicas. Uma versão em inglês está disponível em [`English/Nordic_Arctic_Cables.md`](../English/Nordic_Arctic_Cables.md). Contribuições, correções e discussões são bem-vindas por meio de issues ou pull requests.*
