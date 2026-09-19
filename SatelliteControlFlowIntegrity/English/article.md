@@ -76,10 +76,11 @@ afterwards** — and that is the gap motivating this work.
 
 1. A working on-board computer, from bare-metal bring-up to FreeRTOS flight
    software, built specifically as a security measurement target.
-2. Five reproducible control-flow attacks, all riding the same injected
+2. Six reproducible control-flow attacks - five of them riding the same injected
    vulnerability, isolating the type of deviation as the only variable.
-3. A trace-based detector with no firmware instrumentation: static CFG extraction
-   and external verification.
+3. A trace-based detector with no firmware instrumentation: static CFG
+   extraction, external verification, and shadow-stack handling of interrupts
+   and context switches.
 4. Quantitative evaluation under flight-relevant metrics: detection, false
    positives, latency, and CPU, flash and memory overhead.
 5. An explicit demonstration of the technique's boundary, via a data-only attack
@@ -209,7 +210,7 @@ input-bug differences as a confounder.
 
 ---
 
-## 5. The five attacks
+## 5. The six attacks
 
 | ID | Attack | Mechanism | Mission effect |
 |---|---|---|---|
@@ -218,8 +219,9 @@ input-bug differences as a confounder.
 | ATK-3 | ROP chain | two stages via a `pop {r7, pc}` gadget | payload memory erased |
 | ATK-4 | Malicious task scheduling | diverts into a residual debug hook | pointing lost |
 | ATK-5 | Unauthorized privileged function | enters the body past the auth check | privileged write without auth |
+| ATK-6 | Forged exception return | overwrites `EXC_RETURN` on the handler stack | bus power cut |
 
-Two deserve comment.
+Three deserve comment.
 
 **ATK-3** injects no code: it reuses what is already in the image. The
 `pop {r7, pc}` gadget (Thumb encoding `0xbd80`) is the standard epilogue of every
@@ -301,9 +303,10 @@ operational cost, measured in mission days.
 | S4 — sustained load | no | 0 | n/a | — | — |
 | ATK-1 — buffer overflow | yes | 1 | **YES** | 1230 | 0.0492 |
 | ATK-2 — function pointer | yes | 1 | **YES** | 26 | 0.0010 |
-| ATK-3 — ROP | yes | 2 | **YES** | 1303 | 0.0521 |
+| ATK-3 — ROP | yes | 2 | **YES** | 1230 | 0.0492 |
 | ATK-4 — task scheduling | yes | 1 | **YES** | 1230 | 0.0492 |
 | ATK-5 — privileged function | yes | 2 | **YES** | 1230 | 0.0492 |
+| ATK-6 — forged exception return | yes | 3 | **YES** | 1376 | 0.0550 |
 | **S5 — data-only attack** | **yes** | **0** | **NO** | — | — |
 
 ATK-3 and ATK-5 produce two violations because the deviation has two stages; these
@@ -313,14 +316,14 @@ are edges of the same attack, not independent alerts.
 
 | Metric | Value |
 |---|---|
-| Attack detection | **5/5 (100%)** |
+| Attack detection | **6/6 (100%)** |
 | False positives | **0** across 1.4 M blocks (S0, S1, S4) |
-| Detection latency | 26–1303 instructions (0.001–0.052 ms at 25 MHz) |
+| Detection latency | 26–1376 instructions (0.001–0.055 ms at 25 MHz) |
 | On-board CPU overhead | **0%** |
 | On-board flash overhead | **0 KB** |
 | On-board memory overhead | **0 KB** |
-| CFG model (monitor side) | 940 KB |
-| Monitor throughput | ~31 MB of trace/s |
+| CFG model (monitor side) | 958 KB |
+| Monitor throughput | ~51 MB of trace/s |
 
 ### 7.3 Reading the results
 
@@ -335,8 +338,8 @@ The cost does not vanish: it **migrates entirely to trace channel bandwidth.** O
 second of emulated flight produced roughly 200 MB of raw QEMU trace. That is the
 dominant practical limitation and the next experimental item.
 
-**Latency fits the real-time budget.** The measured worst case, 0.052 ms, is about
-190 times smaller than the ADCS loop period (10 ms). There is headroom to trigger
+**Latency fits the real-time budget.** The measured worst case, 0.055 ms, is about
+180 times smaller than the ADCS loop period (10 ms). There is headroom to trigger
 containment before the next control cycle — which is what separates "detecting"
 from "containing".
 
@@ -347,7 +350,31 @@ at the indirect call; the return address is only consumed at the epilogue, after
 the legitimate handler has run in full. **Detection latency is a property of the
 attack, not only of the detector.**
 
-### 7.4 The boundary: scenario S5
+### 7.4 What the exception handling buys
+
+ATK-6 exists to measure whether the shadow stack of Section 6.3 earns its keep.
+It was analysed under both policies over **the same trace**:
+
+| Policy | Violations | First detection |
+|---|---|---|
+| `exempt` - exception returns accepted unchecked | 1 | instruction 8,204,044 |
+| `checked` - shadow stack | 3 | instruction 8,201,863 |
+
+The 2,181-instruction gap hides the point. Under `exempt` the hijack itself -
+`sec_irq_handler → eps_kill_switch` - is **invisible**; the only alert arrives
+later, when the already-compromised firmware falls into an invalid address and
+that fall betrays an illegal ordinary return. It is a *post-mortem* alert: by the
+time it fires, `eps_kill_switch()` has run and the mission is over. An attacker
+whose payload returned cleanly would leave no alert at all.
+
+Under `checked`, the violation is recorded on the forged transfer itself.
+
+The cost was **zero additional false positives**: S0, S1 and S4 remain at zero,
+with 3,144 exception entries, 1,454 returns, 3,641 context switches and 3,636
+task resumes checked in a single nominal run. Without dedicated handling, each of
+those 3,641 context switches - at 1 kHz - would be a false positive.
+
+### 7.5 The boundary: scenario S5
 
 S5 was built to fail. A second controlled vulnerability — an out-of-bounds write
 into a mission parameter table — lets two **perfectly well-formed** telecommands
@@ -437,7 +464,8 @@ of the technique's boundary (Section 7.4).
   trace fits the bandwidth budget remains open.
 - **Conservative CFG for indirect calls**, more permissive than the real target
   set.
-- **Exception exemption** (Section 6.3) is a declared coverage gap.
+- **Exception-return checking is looser than SHERLOC's**, through trace
+  granularity rather than algorithm (Section 6.3).
 - **Power was argued, not measured.** With no on-board instrumentation the added
   board consumption is zero by construction; the trace channel's consumption needs
   hardware measurement.
@@ -481,8 +509,8 @@ a detail.
 4. **Data-flow integrity** to cover the S5 class.
 5. **Remote attestation over telemetry**, turning the monitor's verdict into
    evidence verifiable at the ground station.
-6. **Interrupt and context-switch handling** at SHERLOC's level [3], removing the
-   exemption of Section 6.3.
+6. **Restoring strict exception-return address comparison** with instruction-level
+   trace on hardware.
 7. **Mapping the covered techniques onto the SPARTA framework** [8], from The
    Aerospace Corporation.
 

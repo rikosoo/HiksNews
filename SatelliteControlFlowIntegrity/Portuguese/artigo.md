@@ -78,10 +78,11 @@ depois** — e é essa a lacuna que motiva este trabalho.
 
 1. Um computador de bordo funcional, do bring-up bare-metal ao software de voo
    sobre FreeRTOS, construído especificamente como alvo de medição de segurança.
-2. Cinco ataques de fluxo de controle reproduzíveis, todos sobre a mesma
+2. Seis ataques de fluxo de controle reproduzíveis — cinco deles sobre a mesma
    vulnerabilidade injetada, isolando o tipo de desvio como única variável.
 3. Um detector baseado em trace, sem instrumentação do firmware, com extração
-   estática de CFG e verificação externa.
+   estática de CFG, verificação externa e tratamento de interrupções e trocas
+   de contexto por shadow stack.
 4. Avaliação quantitativa sob métricas relevantes para voo: detecção, falsos
    positivos, latência e overhead de CPU, flash e memória.
 5. A demonstração explícita da fronteira da técnica, por meio de um ataque
@@ -214,7 +215,7 @@ de bug de entrada como fator de confusão.
 
 ---
 
-## 5. Os cinco ataques
+## 5. Os seis ataques
 
 | ID | Ataque | Mecanismo | Efeito de missão |
 |---|---|---|---|
@@ -223,8 +224,9 @@ de bug de entrada como fator de confusão.
 | ATK-3 | Cadeia ROP | dois estágios via gadget `pop {r7, pc}` | memória da carga útil apagada |
 | ATK-4 | Escalonamento malicioso | desvia para hook de debug residual | apontamento perdido |
 | ATK-5 | Função privilegiada não autorizada | entra no corpo pulando a checagem | escrita privilegiada sem auth |
+| ATK-6 | Retorno de exceção forjado | sobrescreve o `EXC_RETURN` na pilha do handler | barramento de energia desligado |
 
-Dois merecem comentário.
+Três merecem comentário.
 
 **ATK-3** não injeta código: reutiliza o que já está na imagem. O gadget
 `pop {r7, pc}` (encoding Thumb `0xbd80`) é o epílogo padrão de toda função
@@ -236,6 +238,22 @@ como arma**. A tarefa criada em prioridade 5 fica acima do ADCS em prioridade 3,
 o laço de controle de atitude simplesmente deixa de ser escalonado. A consequência
 não é "código executado", é perda de apontamento — seguida de perda de link e de
 geração de energia.
+
+**ATK-6** é o único que roda em contexto de exceção, e por isso precisa de falha
+própria: um handler de interrupção do monitor de segurança copia uma mensagem
+uplinkada para um buffer de 16 bytes na própria pilha, sem validar o tamanho.
+Como o handler é entrado direto pela tabela de vetores, apenas um frame separa
+esse buffer do valor que o epílogo joga no PC:
+
+```
+offset  0..15   local[16]
+offset 16       r7 salvo
+offset 20       LR salvo = EXC_RETURN (0xFFFFFFFD)
+```
+
+Sobrescrever o offset 20 faz com que `pop {r7, pc}` **não saia** do contexto de
+exceção: ele salta para o alvo do atacante. É o caso que a Seção 6.3 trata, e a
+razão de ele existir é medir se esse tratamento vale alguma coisa.
 
 ---
 
@@ -263,22 +281,33 @@ papel do fluxo do ETM — reconstrói cada transição e a compara com a políti
 monitor **não roda no espaço de endereçamento do firmware**: um software de voo
 comprometido não tem como silenciá-lo.
 
-### 6.3 O que é aceito sem verificação
+### 6.3 Interrupções e trocas de contexto
 
-Duas classes de transição são aceitas incondicionalmente, e declará-las é parte
-do resultado — inclusive porque é aqui que o SHERLOC [3] está à frente deste
-protótipo: ele resolve o problema com um algoritmo de detecção *interrupt- and
-scheduling-aware*, enquanto o nosso monitor simplesmente isenta os dois casos.
-Trata-se de uma lacuna nossa em relação ao estado da arte, não de uma diferença
-de escopo.
+Exceções são o problema difícil de qualquer detector baseado em trace: o desvio
+é executado pelo hardware, não parte de nenhuma instrução do programa, e o `PC`
+restaurado no retorno não está em nenhum CFG. Aceitar os dois casos sem verificar
+é a saída fácil — e deixa aberta exatamente a classe do ATK-6.
 
-- **Entrada de exceção**: o desvio é executado pelo hardware e não parte de
-  nenhuma instrução do programa; nenhum CFG o contém.
-- **Retorno de exceção**: o `PC` restaurado não está no modelo. O caso mais agudo
-  é o `PendSV`, que troca a tarefa em execução — sem essa isenção, cada troca de
-  contexto seria um falso positivo, a 1 kHz.
+Portamos o algoritmo *interrupt- and scheduling-aware* do SHERLOC [3]
+(Apache-2.0). O monitor mantém uma **shadow stack** de código interrompido e um
+conjunto de tasks estacionadas:
 
-São buracos reais de cobertura, não simplificações de implementação.
+- **entrada de exceção** continua legal — o hardware é quem desvia — mas o
+  endereço interrompido é registrado;
+- **retorno de exceção** é legal em exatamente três destinos: o código que foi
+  interrompido, a entrada de outro handler (aninhamento), ou o ponto de retomada
+  de uma task que uma troca de contexto estacionou. Qualquer outro é violação.
+
+As entradas de handler são lidas da **tabela de vetores do binário**, não de uma
+lista de nomes conhecidos — a lista perde handlers que a aplicação adiciona e,
+pior, transforma a entrada legítima deles em falso positivo.
+
+Uma ressalva de precisão, imposta pelo trace e não pelo algoritmo: o SHERLOC
+compara o endereço de retorno exato; num trace por blocos a interrupção cai no
+meio de um bloco e só o bloco é conhecido, então aceitamos o *span* do bloco
+interrompido ou um sucessor dele no CFG. É mais largo que a igualdade estrita,
+embora continue limitado pelo modelo. Com ETM/MTB real, que reporta o endereço
+exato, a comparação estrita é recuperável.
 
 ### 6.4 Resposta a incidente
 
@@ -307,9 +336,10 @@ medido em dias de missão.
 | S4 — carga sustentada | não | 0 | n/a | — | — |
 | ATK-1 — estouro de buffer | sim | 1 | **SIM** | 1230 | 0,0492 |
 | ATK-2 — ponteiro de função | sim | 1 | **SIM** | 26 | 0,0010 |
-| ATK-3 — ROP | sim | 2 | **SIM** | 1303 | 0,0521 |
+| ATK-3 — ROP | sim | 2 | **SIM** | 1230 | 0,0492 |
 | ATK-4 — escalonamento | sim | 1 | **SIM** | 1230 | 0,0492 |
 | ATK-5 — função privilegiada | sim | 2 | **SIM** | 1230 | 0,0492 |
+| ATK-6 — retorno de exceção forjado | sim | 3 | **SIM** | 1376 | 0,0550 |
 | **S5 — ataque só de dados** | **sim** | **0** | **NÃO** | — | — |
 
 ATK-3 e ATK-5 produzem duas violações porque o desvio tem dois estágios; são
@@ -319,14 +349,14 @@ arestas do mesmo ataque, não alertas independentes.
 
 | Métrica | Valor |
 |---|---|
-| Detecção de ataques | **5/5 (100%)** |
+| Detecção de ataques | **6/6 (100%)** |
 | Falsos positivos | **0** em 1,4 M de blocos (S0, S1, S4) |
-| Latência de detecção | 26–1303 instruções (0,001–0,052 ms a 25 MHz) |
+| Latência de detecção | 26–1376 instruções (0,001–0,055 ms a 25 MHz) |
 | Overhead de CPU a bordo | **0%** |
 | Overhead de flash a bordo | **0 KB** |
 | Overhead de memória a bordo | **0 KB** |
-| Modelo de CFG (lado do monitor) | 940 KB |
-| Throughput do monitor | ~31 MB de trace/s |
+| Modelo de CFG (lado do monitor) | 958 KB |
+| Throughput do monitor | ~51 MB de trace/s |
 
 ### 7.3 Leitura dos resultados
 
@@ -340,8 +370,8 @@ O custo não desaparece: **migra integralmente para a banda do canal de trace.**
 Um segundo de voo emulado gerou cerca de 200 MB de trace bruto do QEMU. É a
 limitação prática dominante e o próximo item experimental.
 
-**A latência cabe no orçamento de tempo real.** O pior caso medido, 0,052 ms, é
-cerca de 190 vezes menor que o período do laço de ADCS (10 ms). Existe folga para
+**A latência cabe no orçamento de tempo real.** O pior caso medido, 0,055 ms, é
+cerca de 180 vezes menor que o período do laço de ADCS (10 ms). Existe folga para
 disparar contenção antes do próximo ciclo de controle — o que separa "detectar"
 de "conter".
 
@@ -352,7 +382,32 @@ imediatamente na chamada indireta; o endereço de retorno só é consumido no
 epílogo, depois de o handler legítimo ter executado por inteiro. **Latência de
 detecção é propriedade do ataque, não apenas do detector.**
 
-### 7.4 A fronteira: o cenário S5
+### 7.4 O que o tratamento de exceções compra
+
+O ATK-6 existe para medir se a shadow stack da Seção 6.3 vale o que custa. Ele
+foi analisado com as duas políticas sobre **o mesmo trace**:
+
+| Política | Violações | Primeira detecção |
+|---|---|---|
+| `exempt` — retorno de exceção aceito sem verificar | 1 | instrução 8.204.044 |
+| `checked` — shadow stack | 3 | instrução 8.201.863 |
+
+A diferença de 2.181 instruções esconde o ponto importante. Sob `exempt`, o
+sequestro em si — `sec_irq_handler → eps_kill_switch` — é **invisível**; o único
+alerta aparece depois, quando o firmware já comprometido cai num endereço
+inválido e essa queda trai um retorno normal ilegal. É um alerta *post-mortem*:
+quando ele chega, `eps_kill_switch()` já executou e a missão já acabou. Um
+atacante cujo payload retornasse limpo não deixaria alerta nenhum.
+
+Sob `checked`, a violação é registrada na própria transferência forjada.
+
+O custo foi **zero falso positivo adicional**: S0, S1 e S4 seguem em zero, com
+3.144 entradas de exceção, 1.454 retornos, 3.641 trocas de contexto e 3.636
+retomadas de task conferidas numa única execução nominal. Sem o tratamento
+dedicado, cada uma dessas 3.641 trocas de contexto — a 1 kHz — seria um falso
+positivo.
+
+### 7.5 A fronteira: o cenário S5
 
 O S5 foi construído para falhar. Uma segunda vulnerabilidade controlada — escrita
 fora de limites em uma tabela de parâmetros de missão — permite que dois
@@ -419,18 +474,19 @@ Comparado ao SHERLOC especificamente:
 |---|---|---|
 | Alvo | Firmware embarcado, ARMv8-M / Cortex-M33 | Software de voo sobre FreeRTOS, Cortex-M3 |
 | Evidência | Trace de hardware | Trace de hardware (QEMU no papel do ETM) |
-| Interrupções e troca de contexto | **Tratadas** por algoritmo dedicado | **Isentas** — lacuna declarada (6.3) |
+| Interrupções e troca de contexto | Tratadas por algoritmo dedicado | Tratadas — algoritmo portado (6.3) |
+| Precisão do retorno de exceção | Endereço exato (trace por instrução) | Span do bloco ou sucessor no CFG |
 | Ameaça | Atacante local ou de rede | Estação de solo comprometida, uplink hostil |
 | Resposta | Alerta / parada | Modo seguro, quarentena, telemetria de segurança |
 | Restrição dominante | Custo e memória | Energia, radiação, janela de contato, irreversibilidade |
 | Validação | Hardware real (V2M-MPS2+) | Emulação |
 
 A contribuição não é uma técnica nova de detecção, e apresentá-la como tal seria
-incorreto — em capacidade de detecção este protótipo está **atrás** do SHERLOC,
-não à frente. A contribuição é a transposição para um modelo de ameaças em que
-**a resposta a incidente não pode depender de intervenção humana imediata**, a
-avaliação sob as métricas que esse contexto impõe, e a delimitação empírica da
-fronteira da técnica (Seção 7.4).
+incorreto: o mecanismo de exceções é portado do SHERLOC, e a validação deles é
+em hardware real enquanto a nossa é em emulação. A contribuição é a transposição
+para um modelo de ameaças em que **a resposta a incidente não pode depender de
+intervenção humana imediata**, a avaliação sob as métricas que esse contexto
+impõe, e a delimitação empírica de onde a técnica para (Seções 7.4 e 7.5).
 
 ---
 
@@ -442,7 +498,8 @@ fronteira da técnica (Seção 7.4).
   trace cabe no orçamento de banda permanece em aberto.
 - **CFG conservador para chamadas indiretas**, mais permissivo que o conjunto
   real de alvos.
-- **Isenção de exceções** (Seção 6.3) é um buraco de cobertura declarado.
+- **A checagem de retorno de exceção é mais frouxa que a do SHERLOC**, por
+  granularidade de trace e não por algoritmo (Seção 6.3).
 - **Energia não foi medida, foi argumentada.** Sem instrumentação a bordo, o
   consumo adicional na placa é zero por construção; o consumo do canal de trace
   exige medição em hardware.
@@ -464,8 +521,8 @@ média de distribuição.
 
 **Sim, com uma fronteira precisa.** Detecção de violação de fluxo de controle
 baseada em trace transfere-se para software de voo de satélite, e a transferência
-é favorável: 100% de detecção sobre cinco classes distintas de ataque, sem falso
-positivo na carga avaliada, com latência duas ordens de grandeza abaixo do laço
+é favorável: 100% de detecção sobre seis classes distintas de ataque — incluindo
+uma que só existe em contexto de exceção —, sem falso positivo na carga avaliada, com latência duas ordens de grandeza abaixo do laço
 de controle de atitude e **custo nulo de CPU, flash e memória a bordo** — a
 propriedade que torna a abordagem plausível sob orçamento de energia e prazo de
 tempo real de um satélite.
@@ -486,8 +543,8 @@ um evento de radiação — o que, no domínio espacial, não é um detalhe.
 4. **Integridade de fluxo de dados** para cobrir a classe do S5.
 5. **Atestação remota via telemetria**, transformando o veredito do monitor em
    evidência verificável na estação de solo.
-6. **Tratamento de interrupções e troca de contexto** no nível do SHERLOC [3],
-   eliminando a isenção da Seção 6.3.
+6. **Recuperar a comparação estrita de endereço de retorno de exceção** com
+   trace por instrução em hardware.
 7. **Mapeamento das técnicas cobertas para o framework SPARTA** [8], da The
    Aerospace Corporation.
 

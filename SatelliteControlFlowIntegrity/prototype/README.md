@@ -29,7 +29,13 @@ make -C firmware run           # boot interativo no terminal
 
 python3 eval/run_scenario.py S0        # voo nominal
 python3 eval/run_scenario.py ATK-3     # ROP chain
+python3 eval/run_scenario.py ATK-6     # retorno de exceção forjado
 python3 eval/run_scenario.py S5        # ataque só de dados (nenhum alerta)
+
+# comparar as duas políticas de exceção sobre o mesmo trace
+python3 eval/run_scenario.py ATK-6 --trace out/atk6.trace
+python3 monitor/cfi_monitor.py out/cfg.json out/atk6.trace --exceptions exempt
+python3 monitor/cfi_monitor.py out/cfg.json out/atk6.trace --exceptions checked
 python3 eval/run_matrix.py --out out/results.md   # matriz completa
 ```
 
@@ -42,7 +48,7 @@ gera ~200 MB de trace bruto.
 |---|---|
 | `firmware/` | Flight software: 5 tarefas FreeRTOS + parser de telecomando vulnerável |
 | `ground_station/` | `gs.py` — protocolo de telecomando e link simulado |
-| `attacks/` | `attacks.py` — ATK-1..ATK-5 sobre a mesma vulnerabilidade |
+| `attacks/` | `attacks.py` — ATK-1..ATK-6 |
 | `monitor/` | `cfg_extract.py` (build time) e `cfi_monitor.py` (runtime) |
 | `eval/` | `run_scenario.py` e `run_matrix.py` |
 | `tools/` | `fetch_deps.sh` |
@@ -61,12 +67,15 @@ para servir de alvo mensurável:
 
 ## As vulnerabilidades
 
-Duas, ambas marcadas no código como `CONTROLLED VULNERABILITY`:
+Três, todas marcadas no código como `CONTROLLED VULNERABILITY`:
 
 1. **`firmware/src/tc.c`** — o campo `LEN` do telecomando é usado sem validação
    como comprimento de cópia para `ctx.buf[64]` na pilha. É a porta dos cinco
    ataques de fluxo de controle (ATK-1..5).
-2. **`firmware/src/privileged.c`** — o índice de `param_set()` não é validado
+2. **`firmware/src/watchdog.c`** — o handler da IRQ do monitor de segurança
+   copia a mensagem armada para um buffer de 16 bytes na pilha sem validar o
+   tamanho. Existe para o ATK-6: um frame só separa o buffer do `EXC_RETURN`.
+3. **`firmware/src/privileged.c`** — o índice de `param_set()` não é validado
    contra o tamanho da tabela, e `g_state.params[8]` **é**
    `g_state.authenticated`. Existe só para o S5: permite comprometer a missão
    sem desviar o fluxo de controle, que é o caso que o monitor não vê.

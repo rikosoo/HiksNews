@@ -53,12 +53,18 @@ de 64 bytes, sem validar `LEN`. Uma só falha, documentada em
 4. Em violação: gera evento com contexto (função de origem, PC de origem,
    destino ilegal, instante estimado).
 
-Duas classes de transição são aceitas incondicionalmente, e é importante
-declará-las porque são um buraco real na cobertura, não um detalhe de
-implementação:
+Exceções recebem tratamento dedicado, portado do algoritmo *interrupt- and
+scheduling-aware* do SHERLOC (Apache-2.0):
 
-- **entrada de exceção** — o destino é uma entrada da tabela de vetores;
-- **retorno de exceção** — o PC restaurado pelo hardware não está no modelo.
+- **entrada de exceção** — sempre legal, porque o desvio é feito pelo hardware;
+  o endereço interrompido é registrado numa shadow stack;
+- **retorno de exceção** — legal apenas para o código interrompido, a entrada de
+  outro handler (aninhamento), ou o ponto de retomada de uma task estacionada
+  por troca de contexto. Qualquer outro destino é violação.
+
+As entradas de handler saem da **tabela de vetores do binário**, não de uma
+lista de nomes: a lista perde handlers que a aplicação adiciona e marca as
+entradas legítimas deles como violação.
 
 Uma terceira, **reentrada de bloco**, é artefato do emulador: o QEMU abandona um
 bloco quando chega uma interrupção e o reexecuta do início. O ETM real emite um

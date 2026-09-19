@@ -5,6 +5,7 @@
 #include "uart.h"
 #include "tc.h"
 #include "subsystems.h"
+#include "watchdog.h"
 
 /* ---- tc_rx: receives telecommands from the ground station over UART ---- */
 static void task_tc_rx(void *pv)
@@ -66,6 +67,7 @@ static void task_payload(void *pv)
 int main(void)
 {
     uart_init();
+    wd_init();
     uart_puts("\r\n=== CubeSat flight software boot ===\r\n");
 
     xTaskCreate(task_tc_rx,   "tc_rx",   256, NULL, 4, NULL);

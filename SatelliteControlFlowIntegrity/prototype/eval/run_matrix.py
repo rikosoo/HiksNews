@@ -31,6 +31,7 @@ SCENARIOS = [
     ("ATK-3", "ROP / control-flow hijacking",      True),
     ("ATK-4", "Malicious task scheduling",         True),
     ("ATK-5", "Unauthorized privileged function",  True),
+    ("ATK-6", "Forged exception return",           True),
     ("S5",    "Data-only attack (no CF deviation)",  None),
 ]
 

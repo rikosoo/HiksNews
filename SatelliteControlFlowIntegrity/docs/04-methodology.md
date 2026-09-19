@@ -50,10 +50,12 @@ offset 84       (r7 do gadget)
 offset 88       (PC do gadget)     <- segundo estágio do ROP
 ```
 
-Todos os cinco ataques atravessam essa mesma falha — o que isola a variável: o
-que muda entre eles é **o tipo de desvio de fluxo**, não o bug de entrada.
+Os ataques ATK-1 a ATK-5 atravessam essa mesma falha — o que isola a variável:
+o que muda entre eles é **o tipo de desvio de fluxo**, não o bug de entrada. O
+ATK-6 precisa de uma falha própria porque o alvo dele é outro: o retorno de
+exceção, que só existe em contexto de exceção.
 
-## Os cinco ataques controlados
+## Os seis ataques controlados
 
 | ID | Ataque | Mecanismo | Alvo alcançado |
 |---|---|---|---|
@@ -62,6 +64,7 @@ que muda entre eles é **o tipo de desvio de fluxo**, não o bug de entrada.
 | **ATK-3** | ROP / control-flow hijacking | cadeia de 2 estágios via gadget `pop {r7, pc}` | `payload_wipe()` |
 | **ATK-4** | Malicious task scheduling | desvia para hook de debug esquecido na imagem | task rogue acima do ADCS |
 | **ATK-5** | Unauthorized privileged function | entra no corpo de `priv_raw_write()` pulando a checagem de auth | escrita privilegiada sem autenticação |
+| **ATK-6** | Forged exception return | transborda um buffer **dentro do contexto de exceção** e forja o `EXC_RETURN` | `eps_kill_switch()` |
 
 Notas sobre a escolha dos alvos:
 
@@ -70,6 +73,26 @@ Notas sobre a escolha dos alvos:
   esquecido no binário é um achado comum em firmware embarcado. A task criada
   roda acima da prioridade do ADCS e **mata o laço de controle de atitude** — o
   efeito é perda de apontamento, não apenas execução de código.
+- **ATK-6** é o único que roda em contexto de exceção, e usa uma **terceira
+  vulnerabilidade controlada** (`sec_irq_handler` em `firmware/src/watchdog.c`).
+  O handler é chamado direto da tabela de vetores, então só um frame separa o
+  buffer do valor que o epílogo joga no PC:
+
+  ```
+  offset  0..15   local[16]
+  offset 16       r7 salvo
+  offset 20       LR salvo = EXC_RETURN (0xFFFFFFFD)
+  ```
+
+  Sobrescrever o offset 20 faz o `pop {r7, pc}` **não sair** do contexto de
+  exceção: ele salta para o alvo do atacante. Nenhum CFG contém essa
+  transferência, porque nenhum CFG contém retorno de exceção.
+
+  A mensagem é carregada em segmentos (APID 0x70) e só então armada (0x71).
+  Segmentar payload de telecomando é prática comum num link espacial, e aqui
+  também mantém cada quadro dentro do buffer do parser, para que carregar a
+  mensagem não dispare o ATK-1 por acidente.
+
 - **ATK-5** não chama `priv_raw_write()`: entra direto em
   `priv_raw_write_body()`, pulando a checagem `g_tc_authenticated`. É um bypass
   de autenticação que aparece no trace como uma aresta que o CFG não permite.
@@ -81,7 +104,7 @@ Notas sobre a escolha dos alvos:
 | S0 | Telecomandos válidos | Nenhum alerta |
 | S1 | Telecomandos malformados, rejeitados pelo parser | Nenhum alerta |
 | S4 | Carga sustentada (100 telecomandos) | Nenhum alerta |
-| ATK-1..5 | Os cinco ataques acima | Detecção |
+| ATK-1..6 | Os seis ataques acima | Detecção |
 | S5 | Ataque só de dados, sem desvio de fluxo | **Não detectado** — fronteira da técnica |
 
 ## S5 — o cenário construído para falhar

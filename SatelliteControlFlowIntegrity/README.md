@@ -124,9 +124,9 @@ determinístico exigido pelo RTOS.
 
 ---
 
-## 💥 Os cinco ataques controlados
+## 💥 Os seis ataques controlados
 
-Todos atravessam **a mesma vulnerabilidade injetada** — o campo `LEN` do
+Os cinco primeiros atravessam **a mesma vulnerabilidade injetada** — o campo `LEN` do
 telecomando usado sem validação como comprimento de cópia para um buffer de
 pilha de 64 bytes em `tc_handle_frame()`. O que muda entre eles é o tipo de
 desvio de fluxo, não o bug de entrada.
@@ -138,6 +138,10 @@ desvio de fluxo, não o bug de entrada.
 | ATK-3 | ROP / control-flow hijacking | cadeia de 2 estágios via `pop {r7, pc}` | `payload_wipe()` |
 | ATK-4 | Malicious task scheduling | hook de debug esquecido na imagem | task rogue acima do ADCS — apontamento perdido |
 | ATK-5 | Unauthorized privileged function | entra no corpo pulando a checagem de auth | escrita privilegiada sem autenticação |
+| ATK-6 | Forged exception return | forja o `EXC_RETURN` na pilha do handler de IRQ | barramento de energia desligado |
+
+O ATK-6 tem falha própria porque o alvo dele é outro: o **retorno de exceção**,
+que só existe em contexto de exceção e que nenhum CFG contém.
 
 E um sexto cenário, **S5**, que não é um ataque de fluxo de controle e por isso
 não entra na conta de detecção: ver "A fronteira" abaixo.
@@ -146,20 +150,38 @@ não entra na conta de detecção: ver "A fronteira" abaixo.
 
 | Métrica | Valor |
 |---|---|
-| **Attack detection** | **5/5 — 100%** |
+| **Attack detection** | **6/6 — 100%** |
 | **False positives** | **0** (1,4 M de blocos em S0, S1 e S4) |
-| **Detection latency** | **0,001 – 0,052 ms** (26 – 1303 instruções @ 25 MHz) |
+| **Detection latency** | **0,001 – 0,055 ms** (26 – 1376 instruções @ 25 MHz) |
 | **CPU overhead (bordo)** | **0%** |
 | **Flash overhead (bordo)** | **0 KB** |
 | **Memory overhead (bordo)** | **0 KB** |
-| Modelo de CFG (monitor) | 940 KB |
-| Throughput do monitor | ~31 MB de trace/s |
+| Modelo de CFG (monitor) | 958 KB |
+| Throughput do monitor | ~51 MB de trace/s |
 | **S5 — ataque só de dados** | **comprometido, 0 violações — fora do alcance** |
 
 O overhead de bordo é zero **por construção**: o firmware não é instrumentado, o
 monitor consome o trace que o hardware já produz. O custo migra para a banda do
 canal de trace — que é a limitação prática mais séria e está discutida em
 `docs/05-evaluation.md`. Tabela completa em `docs/06-results.md`.
+
+### Interrupções: o que o tratamento dedicado compra
+
+O monitor trata entrada e retorno de exceção com uma **shadow stack**, portada do
+algoritmo *interrupt- and scheduling-aware* do SHERLOC. O ATK-6 mede o ganho,
+sobre o mesmo trace:
+
+| Política | Violações | Primeira detecção |
+|---|---|---|
+| `exempt` — retorno de exceção sem verificar | 1 | instrução 8.204.044 |
+| `checked` — shadow stack | 3 | instrução 8.201.863 |
+
+Sob `exempt` o sequestro é **invisível**; o único alerta vem depois, do firmware
+já comprometido caindo. Alerta post-mortem — `eps_kill_switch()` já executou. Um
+payload que retornasse limpo não deixaria alerta nenhum.
+
+Custo do tratamento: **zero falso positivo adicional**, com 3.641 trocas de
+contexto conferidas numa execução nominal.
 
 ### A fronteira: o cenário S5
 
@@ -184,6 +206,7 @@ make -C firmware                   # arm-none-eabi-gcc
 
 python3 eval/run_scenario.py S0    # voo nominal
 python3 eval/run_scenario.py ATK-1 # ataque: veja a missão ser perdida
+python3 eval/run_scenario.py ATK-6 # retorno de exceção forjado
 python3 eval/run_scenario.py S5    # ataque só de dados: nenhum alerta
 python3 eval/run_matrix.py --out out/results.md   # matriz completa + métricas
 ```
@@ -245,6 +268,8 @@ SatelliteControlFlowIntegrity/
 - [x] Extração estática de CFG a partir do ELF
 - [x] Monitor consumindo trace de execução
 - [x] Primeira rodada de avaliação (detecção, FP, latência, overhead)
+- [x] Tratamento de interrupções e troca de contexto (shadow stack)
+- [x] ATK-6: retorno de exceção forjado, medindo o ganho do tratamento
 - [ ] Modelo de ameaças formalizado (docs/01)
 - [ ] Revisão de literatura consolidada (docs/02)
 - [x] Cenário S5 (ataque só de dados) implementado e medido

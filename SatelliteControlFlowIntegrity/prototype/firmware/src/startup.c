@@ -20,6 +20,7 @@ void Reset_Handler(void)
 }
 
 void HardFault_Handler(void);
+void sec_irq_handler(void);
 
 __attribute__((section(".isr_vector"), used))
 void (* const g_vectors[])(void) = {
@@ -36,4 +37,16 @@ void (* const g_vectors[])(void) = {
     0,
     xPortPendSVHandler,     /* PendSV       */
     xPortSysTickHandler,    /* SysTick      */
+
+    /* External interrupts. The safety-monitor line is the only one used. */
+    default_handler, default_handler, default_handler, default_handler,  /*  0-3  */
+    default_handler, default_handler, default_handler, default_handler,  /*  4-7  */
+    default_handler, default_handler, default_handler, default_handler,  /*  8-11 */
+    default_handler, default_handler, default_handler, default_handler,  /* 12-15 */
+    default_handler, default_handler, default_handler, default_handler,  /* 16-19 */
+    default_handler, default_handler, default_handler, default_handler,  /* 20-23 */
+    default_handler, default_handler, default_handler, default_handler,  /* 24-27 */
+    default_handler, default_handler,                                    /* 28-29 */
+    sec_irq_handler,                                                     /* 30    */
+    default_handler,                                                     /* 31    */
 };

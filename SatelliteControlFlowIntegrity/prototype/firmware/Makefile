@@ -12,7 +12,7 @@ BUILD   := build
 TARGET  := $(BUILD)/flight.elf
 
 SRCS := \
-  src/startup.c src/main.c src/libc_stubs.c src/uart.c src/tc.c src/subsystems.c src/privileged.c \
+  src/startup.c src/main.c src/libc_stubs.c src/uart.c src/tc.c src/subsystems.c src/privileged.c src/watchdog.c \
   $(KERNEL)/tasks.c $(KERNEL)/queue.c $(KERNEL)/list.c $(KERNEL)/timers.c \
   $(PORT)/port.c $(MEMMANG)/heap_4.c
 

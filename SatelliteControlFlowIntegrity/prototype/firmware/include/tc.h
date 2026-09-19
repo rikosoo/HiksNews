@@ -21,6 +21,8 @@
 #define APID_PLD_CAPT   0x40U
 #define APID_PARAM_SET  0x50U
 #define APID_PRIV_WRITE 0x60U
+#define APID_WD_LOAD    0x70U
+#define APID_WD_FIRE    0x71U
 
 void tc_handle_frame(const uint8_t *frame, uint32_t frame_len);
 #endif

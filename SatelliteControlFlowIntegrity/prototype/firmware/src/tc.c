@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "subsystems.h"
 #include "privileged.h"
+#include "watchdog.h"
 
 /* ------------------------------------------------------------------------
  * Telecommand dispatch table. Legitimate control flow only ever reaches the
@@ -57,6 +58,20 @@ static void h_priv_write(const uint8_t *arg, uint32_t arg_len)
     priv_raw_write(rd32(&arg[0]), rd32(&arg[4]));
 }
 
+/* Loads one segment of the watchdog message: arg[0] is the offset. */
+static void h_wd_load(const uint8_t *arg, uint32_t arg_len)
+{
+    if (arg_len < 2U) { return; }
+    wd_load((uint32_t)arg[0], &arg[1], arg_len - 1U);
+}
+
+/* Arms the loaded message for the next tick. */
+static void h_wd_fire(const uint8_t *arg, uint32_t arg_len)
+{
+    if (arg_len < 1U) { return; }
+    wd_fire((uint32_t)arg[0]);
+}
+
 static void h_unknown(const uint8_t *arg, uint32_t arg_len)
 {
     (void)arg; (void)arg_len;
@@ -72,6 +87,8 @@ static tc_handler_t lookup_handler(uint8_t apid)
         case APID_PLD_CAPT:   return h_pld_capture;
         case APID_PARAM_SET:  return h_param_set;
         case APID_PRIV_WRITE: return h_priv_write;
+        case APID_WD_LOAD:    return h_wd_load;
+        case APID_WD_FIRE:    return h_wd_fire;
         default:              return h_unknown;
     }
 }

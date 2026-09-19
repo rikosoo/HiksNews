@@ -156,6 +156,7 @@ def build_model(elf: str) -> dict:
         ret_allowed[site] = sorted(allowed)
 
     handlers = _exception_handlers(prog)
+    entry_to_name = {v: k for k, v in prog.func_entry.items()}
 
     return {
         "elf": elf,
@@ -169,6 +170,8 @@ def build_model(elf: str) -> dict:
         "return_allowed": {hex(a): [hex(t) for t in ts]
                            for a, ts in ret_allowed.items()},
         "exception_handlers": [hex(a) for a in handlers],
+        "exception_handler_map": {entry_to_name[h]: hex(h)
+                                  for h in sorted(handlers) if h in entry_to_name},
         "func_entry": {k: hex(v) for k, v in prog.func_entry.items()},
     }
 
@@ -205,12 +208,42 @@ def _address_taken(prog: Program) -> set[int]:
     return taken
 
 
-def _exception_handlers(prog: Program) -> set[int]:
-    """Entries reachable through the vector table (legal from anywhere)."""
-    names = ["Reset_Handler", "HardFault_Handler", "default_handler",
-             "vPortSVCHandler", "xPortPendSVHandler", "xPortSysTickHandler",
-             "SVC_Handler", "PendSV_Handler", "SysTick_Handler"]
-    return {prog.func_entry[n] for n in names if n in prog.func_entry}
+def _exception_handlers(prog: Program, cross: str = "arm-none-eabi-") -> set[int]:
+    """Entries reachable through the vector table, read from the table itself.
+
+    The vector table is the ground truth for which addresses the hardware may
+    branch to. Deriving this from a list of well-known handler names instead
+    both misses handlers the application adds and, worse, makes their
+    legitimate exception entries look like violations.
+
+    Word 0 of the table is the initial stack pointer, not a handler.
+    """
+    out = subprocess.check_output(
+        [cross + "objdump", "-s", "-j", ".isr_vector", prog.elf], text=True)
+    words: list[int] = []
+    for line in out.splitlines():
+        parts = line.split()
+        if len(parts) < 2 or len(parts[0]) < 4:
+            continue
+        try:
+            int(parts[0], 16)
+        except ValueError:
+            continue
+        for chunk in parts[1:5]:
+            if len(chunk) == 8:
+                try:
+                    be = int(chunk, 16)
+                except ValueError:
+                    continue
+                words.append(int.from_bytes(be.to_bytes(4, "big"), "little"))
+
+    entries = set(prog.func_entry.values())
+    handlers = set()
+    for w in words[1:]:                      # skip the initial SP
+        a = w & ~1
+        if a in entries:
+            handlers.add(a)
+    return handlers
 
 
 def main() -> int:
